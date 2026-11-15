@@ -437,11 +437,14 @@ def run_server(args, **options):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--port', type=int, default=6789)
+    parser.add_argument('--data-dir', type=Path, help='Store backups and the editor lock in this directory.')
     parser.add_argument('--demo', action='store_true', help='Try the editor with temporary sample saves.')
     parser.add_argument('--open', action='store_true', help='Open the editor in your default browser.')
     args = parser.parse_args()
     if not args.demo:
-        return run_server(args)
+        if args.data_dir is not None:
+            args.data_dir.mkdir(parents=True, exist_ok=True)
+        return run_server(args, data_dir=args.data_dir)
     with tempfile.TemporaryDirectory(prefix='sasquatch-studio-') as demo_dir:
         data_dir = Path(demo_dir)
         root = data_dir / 'saves'
