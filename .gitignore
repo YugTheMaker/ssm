@@ -26,5 +26,9 @@ experimental/loader-test.log
 *.zip
 .vscode/
 .idea/
+DerivedData/
+xcuserdata/
+*.xcresult
+/ipad/build/
 
 /LOCAL-DEVELOPMENT.md

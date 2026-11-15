@@ -1,8 +1,12 @@
 # Sneaky Sasquatch Save Studio
 
-A local macOS browser app for editing Sneaky Sasquatch saves. Pick a slot and use the dashboard for currencies, vehicles and garage levels, shoes, firefighter and doctor careers, seasonal events, Raccoon Club badges, the bird sanctuary, and album photos.
+A save editor with a macOS browser app and a native iPad app. On Mac, pick a slot and use the dashboard for currencies, vehicles and garage levels, shoes, firefighter and doctor careers, seasonal events, Raccoon Club badges, the bird sanctuary, and album photos. On iPad, open and edit copies of supported save files using Files.
 
-## Get started
+## iPad app
+
+Open [SasquatchSaveStudio.xcodeproj](ipad/SasquatchSaveStudio.xcodeproj) in Xcode and run the shared **SasquatchSaveStudio** scheme on an iPad simulator. The app supports iPadOS 17 and later. For a physical iPad, select your development team under **Signing & Capabilities**, select the connected iPad as the run destination, and press **Run**. See the [iPad setup and file workflow](ipad/README.md).
+
+## Get started on Mac
 
 1. Download the repository using **Code → Download ZIP**, or clone it with Git. Unzip a downloaded copy before running it.
 2. Install Python 3.10 or newer if `python3 --version` does not show a supported version. The editor has no third-party Python dependencies.
