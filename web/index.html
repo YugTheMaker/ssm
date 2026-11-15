@@ -1,0 +1,2636 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sneaky Sasquatch Save Studio</title>
+<style>
+:root {
+  --bg: #f3f4ee;
+  --card: #ffffff;
+  --card-border: #dde3d7;
+  --text: #19382c;
+  --text-muted: #5c6e64;
+  --primary: #195b41;
+  --primary-hover: #1f7352;
+  --primary-light: #e4efe9;
+  --fire: #d94814;
+  --fire-hover: #b83a0d;
+  --fire-bg: #fff1eb;
+  --gold: #b37400;
+  --gold-bg: #fff9e6;
+  --accent: #2e6b54;
+  --danger: #b33927;
+  --danger-bg: #feece8;
+  --radius: 12px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: var(--text);
+  background: var(--bg);
+}
+* { box-sizing: border-box; }
+body { margin: 0; padding: 0; line-height: 1.5; }
+main { max-width: 1180px; margin: 0 auto; padding: 36px 24px 60px; }
+header { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; flex-wrap: wrap; margin-bottom: 24px; }
+h1 { font-size: 34px; margin: 4px 0 6px; letter-spacing: -0.8px; font-weight: 800; color: #123024; }
+.subtitle { color: var(--text-muted); font-size: 15px; margin: 0; }
+.badge { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; padding: 7px 14px; border-radius: 20px; background: white; border: 1px solid var(--card-border); }
+.badge-dot { width: 8px; height: 8px; border-radius: 50%; background: #16a34a; }
+
+/* Slot Navigation */
+nav.slots { display: flex; gap: 10px; margin: 20px 0; }
+nav.slots button {
+  flex: 1; text-align: left; background: #e7ece2; border: 2px solid transparent; border-radius: 12px; padding: 14px 18px; cursor: pointer; transition: all 0.15s ease;
+}
+nav.slots button:hover { background: #dfe7d9; }
+nav.slots button.active { background: white; border-color: var(--primary); box-shadow: 0 4px 12px rgba(25,91,65,0.08); }
+nav.slots button strong { display: block; font-size: 16px; color: var(--text); }
+nav.slots button span { display: block; font-size: 12px; color: var(--text-muted); margin-top: 3px; }
+
+/* Status Notification */
+#notice {
+  padding: 14px 18px; border-radius: 10px; background: #e5efe7; border-left: 5px solid var(--primary); margin: 18px 0; font-size: 14px; display: flex; justify-content: space-between; align-items: center; gap: 15px; flex-wrap: wrap;
+}
+#notice.error { background: var(--danger-bg); border-left-color: var(--danger); color: #731e12; }
+#notice.warning { background: #fff8e1; border-left-color: #f59e0b; color: #78350f; }
+
+/* Toolbar Buttons */
+.toolbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
+.btn {
+  font-family: inherit; font-size: 13px; font-weight: 650; padding: 9px 16px; border-radius: 8px; border: none; cursor: pointer; transition: all 0.12s ease; display: inline-flex; align-items: center; gap: 6px; text-decoration: none;
+}
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.btn-primary { background: var(--primary); color: white; }
+.btn-primary:hover:not(:disabled) { background: var(--primary-hover); }
+.btn-secondary { background: white; color: var(--text); border: 1px solid var(--card-border); }
+.btn-secondary:hover:not(:disabled) { background: #edf2ea; }
+.btn-fire { background: var(--fire); color: white; }
+.btn-fire:hover:not(:disabled) { background: var(--fire-hover); }
+.btn-gold { background: var(--gold); color: white; }
+.btn-gold:hover:not(:disabled) { background: #966100; }
+.btn-sm { padding: 6px 11px; font-size: 12px; }
+
+/* One-Click Quick Boost Bar */
+.quick-boosts {
+  background: white; border: 1px solid var(--card-border); border-radius: 14px; padding: 18px 22px; margin-bottom: 28px; box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+}
+.quick-boosts h3 { margin: 0 0 12px; font-size: 15px; font-weight: 750; letter-spacing: -0.2px; display: flex; align-items: center; gap: 6px; }
+.boost-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
+
+/* Section Containers */
+section.group {
+  margin-bottom: 32px;
+}
+section.group > h2 {
+  font-size: 20px; font-weight: 750; margin: 0 0 14px; display: flex; align-items: center; gap: 8px;
+}
+section.group > p.sec-desc {
+  font-size: 13px; color: var(--text-muted); margin: -8px 0 16px;
+}
+
+/* Grids & Cards */
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
+.card {
+  background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 18px; box-shadow: 0 1px 4px rgba(0,0,0,0.02);
+}
+.card h3 { font-size: 15px; margin: 0 0 4px; font-weight: 700; }
+.card-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
+.card-current { font-size: 24px; font-weight: 800; color: #112d21; font-variant-numeric: tabular-nums; }
+.card-unit { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; }
+
+/* Inputs and Rows */
+.input-row { display: flex; gap: 8px; margin-top: 10px; }
+input, select {
+  font-family: inherit; font-size: 13px; padding: 9px 12px; border-radius: 8px; border: 1px solid var(--card-border); background: white; color: var(--text); flex: 1; min-width: 0;
+}
+input:focus, select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(25,91,65,0.12); }
+small.hint { display: block; font-size: 11px; color: var(--text-muted); margin-top: 6px; }
+
+/* Firefighter Special Box */
+.fire-dashboard {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;
+}
+@media (max-width: 760px) { .fire-dashboard { grid-template-columns: 1fr; } }
+.fire-card {
+  background: white; border: 1px solid #f2ded5; border-radius: var(--radius); padding: 20px;
+}
+.fire-card.highlight {
+  background: linear-gradient(135deg, #fffcfb, var(--fire-bg)); border-color: #ffd0bf;
+}
+.stat-tag {
+  display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 700; margin-top: 6px;
+}
+.tag-fire { background: #ffe4d9; color: var(--fire); }
+.tag-doctor { background: #e0f2fe; color: #0369a1; }
+.tag-green { background: #dcfce7; color: #15803d; }
+.tag-orange { background: #ffedd5; color: #c2410c; }
+.tag-locked { background: #f1f5f9; color: #64748b; }
+
+.badge-owned {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: #16a34a; color: white;
+  font-size: 11px; font-weight: 800; padding: 4px 9px;
+  border-radius: 6px; letter-spacing: 0.5px;
+}
+.badge-locked {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0;
+  font-size: 11px; font-weight: 700; padding: 4px 9px;
+  border-radius: 6px;
+}
+.veh-card {
+  background: white; border: 1px solid var(--card-border);
+  border-radius: var(--radius); padding: 16px;
+  display: flex; flex-direction: column; justify-content: space-between;
+  gap: 12px; transition: all 0.15s ease;
+}
+.veh-card.is-owned {
+  border-color: #86efac; background: #fafdfa;
+  box-shadow: 0 2px 8px rgba(22, 163, 74, 0.06);
+}
+.filter-pills { display: flex; gap: 6px; flex-wrap: wrap; }
+.filter-pill {
+  padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;
+  background: #edf2eb; border: 1px solid #dce4d9; cursor: pointer; color: var(--text);
+  transition: all 0.12s ease;
+}
+.filter-pill:hover { background: #dfe8dc; }
+.filter-pill.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+.chips-wrap { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.chip { padding: 6px 10px; border-radius: 6px; background: #eaf0e6; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; }
+
+/* Fire Upgrades Table */
+.upgrades-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; margin-top: 14px;
+}
+.up-item {
+  background: #fdfdfc; border: 1px solid var(--card-border); border-radius: 8px; padding: 10px 12px; font-size: 12px;
+}
+.up-item strong { display: block; font-size: 12px; color: #1e3a2f; margin-bottom: 2px; }
+.up-bar { height: 6px; background: #e5ece0; border-radius: 3px; overflow: hidden; margin-top: 6px; }
+.up-bar-fill { height: 100%; background: var(--fire); border-radius: 3px; }
+
+/* Custom Variable Editor */
+.custom-editor-box {
+  background: white; border: 1px solid var(--card-border); border-radius: var(--radius); padding: 22px;
+}
+.var-chips { display: flex; gap: 6px; flex-wrap: wrap; margin: 10px 0 16px; }
+.var-chip {
+  background: #f1f5ee; border: 1px solid #d5ded1; border-radius: 6px; padding: 4px 9px; font-size: 11px; font-family: ui-monospace, monospace; cursor: pointer;
+}
+.var-chip:hover { background: #e1edd9; }
+
+/* Bird Sanctuary & Photos */
+.bird-card-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;
+}
+.bird-species-chip {
+  padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 600;
+  display: inline-flex; align-items: center; gap: 4px; border: 1px solid #e2e8f0;
+}
+.bird-species-chip.photographed {
+  background: #f0fdf4; border-color: #86efac; color: #166534;
+}
+.bird-species-chip.unphotographed {
+  background: #f8fafc; border-color: #e2e8f0; color: #94a3b8;
+}
+
+/* Photo Canvas Studio */
+.studio-layout {
+  display: grid; grid-template-columns: 1fr 340px; gap: 20px; background: white;
+  border: 1px solid var(--card-border); border-radius: var(--radius); padding: 20px;
+}
+@media (max-width: 900px) { .studio-layout { grid-template-columns: 1fr; } }
+.canvas-wrapper {
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+}
+#photo-canvas {
+  background: #ffffff; border: 2px dashed #cbd5e1; border-radius: 8px;
+  cursor: crosshair; touch-action: none; max-width: 100%; box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+.canvas-toolbar {
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: center;
+  width: 100%; padding: 10px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;
+}
+.tool-btn {
+  padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 700;
+  border: 1px solid #cbd5e1; background: white; cursor: pointer; transition: all 0.1s ease;
+}
+.tool-btn.active {
+  background: var(--primary); color: white; border-color: var(--primary);
+}
+.palette-swatch {
+  width: 24px; height: 24px; border-radius: 50%; border: 2px solid white;
+  box-shadow: 0 0 0 1px #cbd5e1; cursor: pointer; transition: transform 0.1s ease;
+}
+.palette-swatch:hover, .palette-swatch.active {
+  transform: scale(1.2); box-shadow: 0 0 0 2px var(--primary);
+}
+.album-gallery {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 14px; margin-top: 14px;
+}
+.album-thumb-card {
+  background: white; border: 1px solid var(--card-border); border-radius: 8px;
+  overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.04); display: flex; flex-direction: column;
+}
+.album-thumb-card img {
+  width: 100%; height: 120px; object-fit: cover; background: #e2e8f0; display: block;
+}
+.album-thumb-meta {
+  padding: 10px; font-size: 11px; display: flex; flex-direction: column; gap: 4px;
+}
+
+footer {
+  margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--card-border); font-size: 12px; color: var(--text-muted); line-height: 1.7;
+}
+#backup-path { font-family: ui-monospace, monospace; font-size: 11px; margin-top: 6px; color: var(--primary); }
+
+.editor-nav {
+  display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 24px;
+  padding: 8px; background: white; border: 1px solid var(--card-border); border-radius: var(--radius);
+}
+.editor-nav a {
+  color: var(--text); background: var(--primary-light); padding: 6px 10px;
+  border-radius: 6px; font-size: 13px; font-weight: 650; text-decoration: none;
+}
+.editor-nav a:hover { background: #d2e7d9; }
+:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.field-columns { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: 20px; }
+.field-columns label { display: block; margin-bottom: 4px; font-size: 13px; font-weight: 700; }
+.field-columns input, .field-columns select, .field-columns textarea { display: block; width: 100%; margin-bottom: 12px; }
+.field-columns textarea {
+  resize: vertical; padding: 10px 12px; border: 1px solid var(--card-border);
+  border-radius: 8px; font: 13px/1.5 ui-monospace, monospace; color: var(--text); background: white;
+}
+#field-status { margin: 12px 0 0; font-size: 13px; color: var(--text-muted); overflow-wrap: anywhere; }
+#field-status.error { color: var(--danger); }
+#backup-path { overflow-wrap: anywhere; min-width: 0; }
+@media (max-width: 620px) {
+  main { padding-inline: 14px; }
+  h1 { font-size: 28px; }
+  nav.slots button { padding: 8px; min-width: 0; }
+  .field-columns { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .quick-boosts { padding: 14px; }
+  .card { min-width: 0; }
+}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div>
+      <h1>Sneaky Sasquatch Save Studio</h1>
+      <p class="subtitle">Choose a save slot, then pick what you want to edit.</p>
+    </div>
+    <div class="badge" id="mode-badge">Local editor</div>
+  </header>
+
+  <!-- Slot Navigation -->
+  <nav class="slots" aria-label="Save Slots">
+    <button data-slot="1" onclick="switchSlot(1)">
+      <strong>Slot 1</strong>
+      <span id="slot1-sub">Open slot 1 save</span>
+    </button>
+    <button data-slot="2" onclick="switchSlot(2)">
+      <strong>Slot 2</strong>
+      <span id="slot2-sub">Open slot 2 save</span>
+    </button>
+    <button data-slot="3" onclick="switchSlot(3)" class="active">
+      <strong>Slot 3</strong>
+      <span id="slot3-sub">Open slot 3 save</span>
+    </button>
+  </nav>
+
+  <!-- Notification Banner -->
+  <div id="notice" role="status">
+    <span id="notice-text">Connecting to your save...</span>
+    <div id="backup-path"></div>
+  </div>
+
+  <!-- Top Toolbar -->
+  <div class="toolbar">
+    <div>
+      <span style="font-weight:700; font-size:15px;" id="current-slot-title">Loading save…</span>
+    </div>
+    <div style="display:flex; gap:8px;">
+      <button class="btn btn-secondary" id="refresh" onclick="loadState()">🔄 Refresh</button>
+      <button class="btn btn-secondary" id="undo" onclick="doEdit({action:'undo'})">↩️ Undo Last Edit</button>
+    </div>
+  </div>
+
+  <nav class="editor-nav" aria-label="Editor sections">
+    <a href="#quick-edits">Quick edits</a>
+    <a href="#currencies">Currencies</a>
+    <a href="#firefighter">Firefighter</a>
+    <a href="#vehicles">Vehicles</a>
+    <a href="#gear">Shoes &amp; doctor</a>
+    <a href="#halloween">Halloween</a>
+    <a href="#christmas">Christmas</a>
+    <a href="#raccoon-club">Raccoon Club</a>
+    <a href="#birds">Bird sanctuary</a>
+    <a href="#photos">Photo studio</a>
+    <a href="#save-fields">Save fields</a>
+  </nav>
+
+  <!-- ⚡ 1-Click God Mode Boosts -->
+  <div class="quick-boosts" id="quick-edits">
+    <h3>⚡ 1-Click Instant Boosts</h3>
+    <div class="boost-buttons">
+      <button class="btn btn-gold" id="boost-currencies-btn" onclick="doEdit({action:'max_currencies'})">
+        💰 Max All Currencies ($2,000,000)
+      </button>
+      <button class="btn btn-fire" id="boost-fire-btn" onclick="doEdit({action:'max_fire'})">
+        🚒 Max Fire Station & Battalion Chief (Rank 8/8)
+      </button>
+      <button class="btn btn-primary" id="boost-max-cars-btn" onclick="doEdit({action:'max_cars'})">
+        🏎️ Unlock Every Single Car (All 30+ Vehicles) & Max Lvl 5
+      </button>
+      <button class="btn btn-primary" id="boost-halloween-btn" style="background:#ea580c;" onclick="doEdit({action:'refill_candy_bowls'})">
+        🎃 Enable Halloween & Refill All Candy Bowls
+      </button>
+      <button class="btn btn-primary" id="boost-xmas-btn" style="background:#15803d;" onclick="doEdit({action:'max_christmas'})">
+        🎄 Enable Christmas, Max Candy Canes & Unlock All Decorations
+      </button>
+      <button class="btn btn-primary" id="boost-raccoon-btn" style="background:#ca8a04;" onclick="doEdit({action:'unlock_all_badges'})">
+        🦝 Unlock Raccoon Club & Fill Sash (All 80 Badges)
+      </button>
+      <button class="btn btn-primary" id="boost-shoes-btn" onclick="doEdit({action:'shoes', kind:'all'})">
+        👟 Unlock & Activate ALL Shoes (Sneaky + Running + Sprinting)
+      </button>
+      <button class="btn btn-secondary" id="boost-doctor-btn" onclick="doEdit({action:'doctor', level:4})">
+        🩺 Max Doctor Rank (Junior Head Doctor)
+      </button>
+      <button class="btn btn-primary" id="boost-bird-btn" style="background:#0284c7;" onclick="doEdit({action:'max_bird_sanctuary'})">
+        🦅 Max Bird Sanctuary ($2M), Build All Projects & Complete Bird Guide
+      </button>
+    </div>
+  </div>
+
+  <!-- 🚒 FIREFIGHTER HEADQUARTERS -->
+  <section class="group" id="firefighter">
+    <h2>🚒 Firefighter Career, Funding & Station</h2>
+    <p class="sec-desc">Set extra funding for the Fire Station computer app, promote your career rank up to Junior Battalion Chief, and max out all firefighting equipment.</p>
+
+    <div class="fire-dashboard">
+      <!-- Funding Box -->
+      <div class="fire-card highlight">
+        <div class="card-header">
+          <div>
+            <h3>Firefighter Funding</h3>
+            <span class="card-unit">Fire Station Computer App Balance</span>
+          </div>
+          <span class="stat-tag tag-fire" id="ff-funding-badge">0 Funding</span>
+        </div>
+        <div class="card-current" id="ff-funding-text">0</div>
+        <p style="font-size:12px; color:var(--text-muted); margin:4px 0 10px;">
+          Type any amount to add to your Fire Station upgrade computer (e.g. 50000, 100k, 2m):
+        </p>
+        <div class="input-row">
+          <input type="text" id="ff-funding-input" placeholder="e.g. 100000 or 500k">
+          <button class="btn btn-fire" onclick="setFireFunding()">Set Funding</button>
+        </div>
+        <div style="display:flex; gap:6px; margin-top:8px;">
+          <button class="btn btn-secondary btn-sm" onclick="setFireFundingVal(50000)">+50,000</button>
+          <button class="btn btn-secondary btn-sm" onclick="setFireFundingVal(100000)">+100,000</button>
+          <button class="btn btn-secondary btn-sm" onclick="setFireFundingVal(500000)">+500,000</button>
+          <button class="btn btn-secondary btn-sm" onclick="setFireFundingVal(2000000)">+2,000,000</button>
+        </div>
+      </div>
+
+      <!-- Rank & Career Box -->
+      <div class="fire-card">
+        <div class="card-header">
+          <div>
+            <h3>Firefighter Rank</h3>
+            <span class="card-unit">Fire Department Career Progress</span>
+          </div>
+          <span class="stat-tag tag-fire" id="ff-rank-badge">Level 1</span>
+        </div>
+        <div class="card-current" style="font-size:20px;" id="ff-rank-title">Probationary Firefighter</div>
+        <p style="font-size:12px; color:var(--text-muted); margin:4px 0 10px;">
+          Choose your rank directly without grinding calls:
+        </p>
+        <div class="input-row">
+          <select id="ff-rank-select">
+            <option value="1">1. Probationary Firefighter</option>
+            <option value="2">2. Junior Firefighter</option>
+            <option value="3">3. Firefighter</option>
+            <option value="4">4. Junior Lieutenant</option>
+            <option value="5">5. Lieutenant</option>
+            <option value="6">6. Junior Captain</option>
+            <option value="7">7. Captain</option>
+            <option value="8" selected>8. Junior Battalion Chief (Max Rank!)</option>
+          </select>
+          <button class="btn btn-fire" onclick="setFireRank()">Promote</button>
+        </div>
+        <div style="margin-top:14px; display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-size:12px; color:var(--text-muted);">Station & Equipment:</span>
+          <button class="btn btn-fire btn-sm" onclick="doEdit({action:'max_fire'})">🔥 Max All Fire Upgrades</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Fire Upgrades List -->
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h3 style="margin:0;">🚒 Fire Station & Truck Upgrades Status</h3>
+        <button class="btn btn-fire btn-sm" onclick="doEdit({action:'max_fire'})">Max Out Everything</button>
+      </div>
+      <div id="ff-upgrades-grid" class="upgrades-grid">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+  </section>
+
+  <!-- 💰 CURRENCIES & RESOURCES -->
+  <section class="group" id="currencies">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+      <h2 style="margin:0;">💰 Currencies & Resources</h2>
+      <button class="btn btn-gold btn-sm" onclick="doEdit({action:'max_currencies'})">Max All (2,000,000 each)</button>
+    </div>
+    <p class="sec-desc">Set any currency balance. Type any amount (e.g. 50000, 250k, 2m, 2 billion) and click Set.</p>
+    <div id="currencies-grid" class="grid">
+      <!-- Populated dynamically -->
+    </div>
+  </section>
+
+  <!-- 🚗 UNLOCK ANY VEHICLE / CAR -->
+  <section class="group" id="vehicles">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:10px;">
+      <div>
+        <h2 style="margin:0;">🚗 Unlock Any Vehicle / Car</h2>
+        <span id="vehicles-owned-summary" style="font-size:13px; color:var(--text-muted); font-weight:600;">Loading vehicles...</span>
+      </div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <button class="btn btn-primary btn-sm" id="veh-unlock-all-btn" onclick="doEdit({action:'max_cars'})">
+          🌟 Unlock Every Single Car (All 30+ Vehicles)
+        </button>
+        <button class="btn btn-secondary btn-sm" id="veh-max-levels-btn" onclick="doEdit({action:'max_cars'})">
+          ⚡ Max Out All Garage Levels (Lvl 5)
+        </button>
+      </div>
+    </div>
+    <p class="sec-desc">
+      Type any car name below to search and unlock it instantly into your garage (including the <strong>Snowmobile / slow mobile</strong>, Pickup Truck, Forklift, 4x4, Boats, Bikes, etc.). Vehicles you already own (like your Pickup Truck) are clearly marked <strong style="color:#16a34a;">✓ ALREADY OWNED</strong> and cannot be unlocked again.
+    </p>
+
+    <!-- Search & Type-To-Unlock Card -->
+    <div class="card" style="margin-bottom:16px; padding:18px 20px;">
+      <div style="display:grid; grid-template-columns: 1fr auto; gap:12px; align-items:center;">
+        <div>
+          <label style="display:block; font-size:11px; font-weight:700; margin-bottom:5px; text-transform:uppercase; letter-spacing:0.5px;">
+            🔍 Search Or Type Any Car To Unlock:
+          </label>
+          <input type="text" id="vehicle-search" placeholder="Type car name e.g. slow mobile, snowmobile, pickup truck, forklift, dirt bike, jetski..." oninput="onVehicleSearchInput()">
+          <div id="vehicle-search-hint" style="font-size:12px; margin-top:6px; min-height:16px;"></div>
+        </div>
+        <div style="padding-top:19px;">
+          <button class="btn btn-primary" id="unlock-typed-btn" onclick="unlockTypedVehicle()">
+            ✨ Unlock Car
+          </button>
+        </div>
+      </div>
+
+      <!-- Category Filter Pills -->
+      <div class="filter-pills" style="margin-top:14px;" id="vehicle-cat-pills">
+        <button class="filter-pill active" onclick="setVehicleCategory('All')">All Vehicles</button>
+        <button class="filter-pill" onclick="setVehicleCategory('Cars')">Cars</button>
+        <button class="filter-pill" onclick="setVehicleCategory('Trucks')">Trucks & 4x4</button>
+        <button class="filter-pill" onclick="setVehicleCategory('Winter')">Winter / Snowmobile</button>
+        <button class="filter-pill" onclick="setVehicleCategory('Bikes')">Bikes & Motorcycles</button>
+        <button class="filter-pill" onclick="setVehicleCategory('Boats')">Boats & Water</button>
+        <button class="filter-pill" onclick="setVehicleCategory('Emergency')">Emergency</button>
+        <button class="filter-pill" onclick="setVehicleCategory('Commercial')">Commercial & Industrial</button>
+      </div>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px; font-size:12px; color:var(--text-muted); flex-wrap:wrap; gap:8px;">
+        <span id="vehicle-filter-count">Showing 32 vehicles</span>
+        <div style="display:flex; gap:12px;">
+          <label style="cursor:pointer;"><input type="radio" name="veh-owned-filter" value="all" checked onchange="setVehicleOwnershipFilter('all')"> Show All</label>
+          <label style="cursor:pointer;"><input type="radio" name="veh-owned-filter" value="owned" onchange="setVehicleOwnershipFilter('owned')"> Owned Only</label>
+          <label style="cursor:pointer;"><input type="radio" name="veh-owned-filter" value="locked" onchange="setVehicleOwnershipFilter('locked')"> Locked Only</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Vehicles Grid -->
+    <div id="vehicles-catalog-grid" class="grid" style="grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap:14px;">
+      <!-- Populated dynamically by JS -->
+    </div>
+  </section>
+
+  <!-- 🎃 HALLOWEEN & CANDY BOWLS -->
+  <section class="group" id="halloween">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:10px;">
+      <h2 style="margin:0;">🎃 Halloween & Candy Bowls</h2>
+      <div style="display:flex; gap:8px;">
+        <button class="btn btn-primary btn-sm" style="background:#ea580c;" onclick="doEdit({action:'refill_candy_bowls'})">🍬 Refill All Candy Bowls</button>
+        <button class="btn btn-gold btn-sm" onclick="doEdit({action:'halloween_candy', value:2000000})">Max Candy ($2,000,000)</button>
+      </div>
+    </div>
+    <p class="sec-desc">
+      Control the seasonal Halloween event, refill and reset all candy bowls in Sasquatch Valley, and manage Halloween candy currency.
+    </p>
+
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:16px;">
+      <!-- Halloween Event Status -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h3>Halloween Seasonal Event</h3>
+            <span class="card-unit">Seasonal State (se_h)</span>
+          </div>
+          <span class="stat-tag" id="hwn-status-tag" style="background:#fff7ed; color:#ea580c;">Checking...</span>
+        </div>
+        <p style="font-size:12px; color:var(--text-muted); margin:4px 0 14px;">
+          Spawns Jack-o'-lanterns, Halloween decorations, costumed trick-or-treaters, and Candy Bowls across Sasquatch Valley!
+        </p>
+        <div style="display:flex; gap:10px;">
+          <button class="btn btn-primary btn-sm" style="flex:1;" onclick="doEdit({action:'halloween_event', active:true})">
+            🎃 Turn ON Halloween
+          </button>
+          <button class="btn btn-secondary btn-sm" style="flex:1;" onclick="doEdit({action:'halloween_event', active:false})">
+            ⚪ Turn OFF Halloween
+          </button>
+        </div>
+      </div>
+
+      <!-- Refill Candy Bowls -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h3>Halloween Candy Bowls</h3>
+            <span class="card-unit">Trick-or-Treat Bowls</span>
+          </div>
+          <span class="stat-tag" style="background:#fef3c7; color:#b45309;">Refillable</span>
+        </div>
+        <p style="font-size:12px; color:var(--text-muted); margin:4px 0 14px;">
+          Clears all collected flags (`alreadyCollected`) and resets container data in all game maps. All candy bowls throughout the entire world will be full again so Sasquatch can trick-or-treat repeatedly!
+        </p>
+        <button class="btn btn-primary" style="width:100%; justify-content:center; background:#ea580c;" onclick="doEdit({action:'refill_candy_bowls'})">
+          🍬 Refill & Reset All Candy Bowls Now
+        </button>
+      </div>
+
+      <!-- Candy Currency -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h3>Halloween Candy Currency</h3>
+            <span class="card-unit">Balance (hwcd)</span>
+          </div>
+          <span class="stat-tag" style="background:#fce7f3; color:#be185d;">Event Currency</span>
+        </div>
+        <div class="card-current" id="hwn-candy-current">0</div>
+        <p style="font-size:12px; color:var(--text-muted); margin:4px 0 10px;">
+          Use candy at Jack-o'-lantern's shop to purchase exclusive Halloween prizes and costumes.
+        </p>
+        <div class="input-row">
+          <input type="text" id="hwn-candy-input" placeholder="Candy amount (e.g. 5000, 2m)">
+          <button class="btn btn-primary btn-sm" onclick="setHalloweenCandy()">Set Candy</button>
+        </div>
+        <div style="display:flex; gap:6px; margin-top:8px;">
+          <button class="btn btn-secondary btn-sm" style="flex:1;" onclick="doEdit({action:'halloween_candy', value:1000})">+1,000</button>
+          <button class="btn btn-secondary btn-sm" style="flex:1;" onclick="doEdit({action:'halloween_candy', value:50000})">50,000</button>
+          <button class="btn btn-gold btn-sm" style="flex:1;" onclick="doEdit({action:'halloween_candy', value:2000000})">Max 2M</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 🎄 CHRISTMAS & WINTER HOLIDAY -->
+  <section class="group" id="christmas">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:10px;">
+      <h2 style="margin:0;">🎄 Christmas & Winter Holiday Event</h2>
+      <div style="display:flex; gap:8px;">
+        <button class="btn btn-primary btn-sm" style="background:#15803d;" onclick="doEdit({action:'unlock_christmas_decorations'})">🎁 Unlock All Christmas Decorations</button>
+        <button class="btn btn-gold btn-sm" onclick="doEdit({action:'christmas_candy_canes', value:2000000})">Max Candy Canes ($2,000,000)</button>
+      </div>
+    </div>
+    <p class="sec-desc">
+      Control the seasonal Christmas and Winter Holiday event, manage your Christmas Candy Canes currency balance, and unlock all of Jack Frost's outdoor house and camp decorations.
+    </p>
+
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:16px;">
+      <!-- Christmas Event Status -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h3>Christmas Seasonal Event</h3>
+            <span class="card-unit">Seasonal State (se_c & Eq)</span>
+          </div>
+          <span class="stat-tag" id="xmas-status-tag" style="background:#dcfce7; color:#15803d;">Checking...</span>
+        </div>
+        <p style="font-size:12px; color:var(--text-muted); margin:4px 0 14px;">
+          Blankets Sasquatch Valley in winter snow, spawns festive decorated Christmas trees, snowmen, holiday lights on buildings, and Jack Frost's winter shop!
+        </p>
+        <div style="display:flex; gap:10px;">
+          <button class="btn btn-primary btn-sm" style="flex:1; background:#15803d;" onclick="doEdit({action:'christmas_event', active:true})">
+            🎄 Turn ON Christmas
+          </button>
+          <button class="btn btn-secondary btn-sm" style="flex:1;" onclick="doEdit({action:'christmas_event', active:false})">
+            ⚪ Turn OFF Christmas
+          </button>
+        </div>
+      </div>
+
+      <!-- Candy Canes Currency -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h3>Christmas Candy Canes</h3>
+            <span class="card-unit">Balance (xmcc)</span>
+          </div>
+          <span class="stat-tag" style="background:#fee2e2; color:#b91c1c;">Holiday Currency</span>
+        </div>
+        <div class="card-current" id="xmas-canes-current">0 Candy Canes</div>
+        <p style="font-size:12px; color:var(--text-muted); margin:4px 0 10px;">
+          Spend Candy Canes at Jack Frost's shop to purchase exclusive winter prizes, holiday outfits, and the Snowmobile!
+        </p>
+        <div class="input-row">
+          <input type="text" id="xmas-canes-input" placeholder="Candy canes amount (e.g. 5000, 2m)">
+          <button class="btn btn-primary btn-sm" style="background:#15803d;" onclick="setChristmasCandyCanes()">Set Canes</button>
+        </div>
+        <div style="display:flex; gap:6px; margin-top:8px;">
+          <button class="btn btn-secondary btn-sm" style="flex:1;" onclick="doEdit({action:'christmas_candy_canes', value:1000})">+1,000</button>
+          <button class="btn btn-secondary btn-sm" style="flex:1;" onclick="doEdit({action:'christmas_candy_canes', value:50000})">50,000</button>
+          <button class="btn btn-gold btn-sm" style="flex:1;" onclick="doEdit({action:'christmas_candy_canes', value:2000000})">Max 2M</button>
+        </div>
+      </div>
+
+      <!-- Jack Frost's Holiday Decorations -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h3>Jack Frost's Holiday Decorations</h3>
+            <span class="card-unit">House & Camp Decor</span>
+          </div>
+          <span class="stat-tag" id="xmas-decor-badge" style="background:#e0f2fe; color:#0369a1;">0/6 Unlocked</span>
+        </div>
+        <p style="font-size:12px; color:var(--text-muted); margin:4px 0 10px;">
+          Unlock all 6 festive outdoor holiday decorations without grinding candy canes:
+        </p>
+        <div id="xmas-decor-chips" class="chips-wrap" style="margin-bottom:14px;"></div>
+        <button class="btn btn-primary btn-sm" id="btn-xmas-decor" style="width:100%; justify-content:center; background:#15803d;" onclick="doEdit({action:'unlock_christmas_decorations'})">
+          🎁 Unlock All Christmas Decorations
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 🦝 RACCOON CLUB & BADGES -->
+  <section class="group" id="raccoon-club">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:10px;">
+      <h2 style="margin:0;">🦝 Raccoon Club & Achievement Badges</h2>
+      <div style="display:flex; gap:8px;">
+        <button class="btn btn-primary btn-sm" id="btn-rc-unlock" style="background:#ca8a04;" onclick="doEdit({action:'unlock_raccoon_club'})">🦝 Unlock Raccoon Club</button>
+        <button class="btn btn-gold btn-sm" id="btn-rc-all-badges" onclick="doEdit({action:'unlock_all_badges'})">🎖️ Unlock ALL 80 Badges & Fill Sash</button>
+      </div>
+    </div>
+    <p class="sec-desc">
+      Manage your Raccoon Club membership, set your badge count number, and unlock all 80 individual achievement badges for your Badge Sash and Clubhouse access.
+    </p>
+
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:16px;">
+      <!-- Raccoon Club Status -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h3>Raccoon Club Clubhouse</h3>
+            <span class="card-unit">Clubhouse Status (Li & pt)</span>
+          </div>
+          <span class="stat-tag" id="rc-status-tag" style="background:#fef9c3; color:#854d0e;">Checking...</span>
+        </div>
+        <p style="font-size:12px; color:var(--text-muted); margin:4px 0 14px;">
+          The secret clubhouse located in the tree where Quartermaster Duck awards the Badge Sash, Raccoon Club Hat, and Disguise! Requires 20 badges to enter.
+        </p>
+        <button class="btn btn-primary" id="btn-rc-clubhouse" style="width:100%; justify-content:center; background:#ca8a04;" onclick="doEdit({action:'unlock_raccoon_club'})">
+          🦝 Unlock Clubhouse Now
+        </button>
+      </div>
+
+      <!-- Badge Number Setter -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h3>Raccoon Club Badges</h3>
+            <span class="card-unit">Number of Badges (4o / rcb)</span>
+          </div>
+          <span class="stat-tag" style="background:#fef08a; color:#713f12;">Badge Currency</span>
+        </div>
+        <div class="card-current" id="rc-badges-current">0 Badges</div>
+        <p style="font-size:12px; color:var(--text-muted); margin:4px 0 10px;">
+          Set the exact number of badges credited to your Raccoon Club account and displayed on your sash:
+        </p>
+        <div class="input-row">
+          <input type="text" id="rc-badges-input" placeholder="Type badge number (e.g. 20, 50, 80)">
+          <button class="btn btn-primary btn-sm" style="background:#ca8a04;" onclick="setRaccoonBadges()">Set Badges</button>
+        </div>
+        <div style="display:flex; gap:6px; margin-top:8px;">
+          <button class="btn btn-secondary btn-sm" style="flex:1;" onclick="doEdit({action:'raccoon_badges', value:20})">20 (Unlock)</button>
+          <button class="btn btn-secondary btn-sm" style="flex:1;" onclick="doEdit({action:'raccoon_badges', value:40})">40</button>
+          <button class="btn btn-secondary btn-sm" style="flex:1;" onclick="doEdit({action:'raccoon_badges', value:80})">80 (Max)</button>
+          <button class="btn btn-gold btn-sm" style="flex:1;" onclick="doEdit({action:'raccoon_badges', value:100})">100</button>
+        </div>
+      </div>
+
+      <!-- Achievement Badges Sash (All 80 Badges) -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h3>Badge Sash Collection</h3>
+            <span class="card-unit">Individual Achievements (eb)</span>
+          </div>
+          <span class="stat-tag" id="rc-sash-badge" style="background:#fef08a; color:#713f12;">0/80 Badges</span>
+        </div>
+        <div class="card-current" style="font-size:19px;" id="rc-sash-title">Loading badges...</div>
+        <p style="font-size:12px; color:var(--text-muted); margin:4px 0 14px;">
+          Awards every single individual achievement badge in the game directly to your Badge Sash in `achievements.stuff`!
+        </p>
+        <button class="btn btn-primary" id="btn-rc-award-all" style="width:100%; justify-content:center; background:#ca8a04;" onclick="doEdit({action:'unlock_all_badges'})">
+          🎖️ Award ALL 80 Badges To Sash
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 👟 SHOES & DOCTOR CAREER -->
+  <section class="group" id="gear">
+    <h2>👟 Shoes & 🩺 Doctor Career</h2>
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+      <!-- Shoes Card -->
+      <div class="card">
+        <h3>Shoes & Running Boots</h3>
+        <p style="font-size:12px; color:var(--text-muted); margin:2px 0 10px;">Unlock shoes and set their active status:</p>
+        <div id="shoes-status-chips" class="chips-wrap" style="margin-bottom:14px;"></div>
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <button class="btn btn-primary btn-sm" id="btn-shoes-all" onclick="doEdit({action:'shoes', kind:'all'})">
+            ⚡ Unlock ALL Shoes (Sneaky + Running + Sprinting)
+          </button>
+          <div style="display:flex; gap:8px;">
+            <button class="btn btn-secondary btn-sm" id="btn-shoes-sneaky" style="flex:1;" onclick="doEdit({action:'shoes', kind:'sneaky'})">
+              Own & Activate Sneaky Shoes
+            </button>
+            <button class="btn btn-secondary btn-sm" id="btn-shoes-running" style="flex:1;" onclick="doEdit({action:'shoes', kind:'running'})">
+              Own & Activate Running Shoes
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Doctor Card -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h3>Doctor Career</h3>
+            <span class="card-unit">Hospital Career Progress</span>
+          </div>
+          <span class="stat-tag tag-doctor" id="doctor-rank-badge">Level 1</span>
+        </div>
+        <div class="card-current" style="font-size:19px;" id="doctor-rank-title">Junior Doctor</div>
+        <p style="font-size:12px; color:var(--text-muted); margin:4px 0 10px;">
+          Promote yourself directly to Junior Head Doctor:
+        </p>
+        <div class="input-row">
+          <select id="doctor-rank-select">
+            <option value="1">1. Junior Doctor</option>
+            <option value="2">2. Doctor</option>
+            <option value="3">3. Senior Doctor</option>
+            <option value="4" selected>4. Junior Head Doctor (Max Rank!)</option>
+          </select>
+          <button class="btn btn-primary" id="btn-doctor-rank" onclick="setDoctorRank()">Set Rank</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  
+  <!-- 🦅 BIRD SANCTUARY & BIRD GUIDE -->
+  <section class="group" id="birds">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:10px;">
+      <div>
+        <h2 style="margin:0;">🦅 Bird Sanctuary & Bird Guide</h2>
+        <span id="bird-summary-subtitle" style="font-size:13px; color:var(--text-muted); font-weight:600;">Loading bird sanctuary...</span>
+      </div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <button class="btn btn-primary btn-sm" style="background:#0284c7;" id="btn-build-all-sanctuary" onclick="doEdit({action:'build_bird_sanctuary'})">
+          🏗️ Build All Sanctuary Projects
+        </button>
+        <button class="btn btn-primary btn-sm" style="background:#0d9488;" id="btn-complete-bird-guide" onclick="doEdit({action:'complete_bird_guide'})">
+          📖 Complete Bird Guide (All 40 Birds)
+        </button>
+        <button class="btn btn-gold btn-sm" onclick="doEdit({action:'max_bird_sanctuary'})">
+          🌟 Max Sanctuary ($2,000,000)
+        </button>
+      </div>
+    </div>
+    <p class="sec-desc">
+      Manage Bird Sanctuary funding balance, funding level, build all park construction projects (Boardwalk, Observation Tower, Outhouse, Photo Shelves, Benches &amp; Trash Cans), and complete your official Bird Guide!
+    </p>
+
+    <div class="bird-card-grid">
+      <!-- Funding Balance Card -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h3>Sanctuary Funding Balance</h3>
+            <span class="card-unit">Donations (nt)</span>
+          </div>
+          <span class="stat-tag" id="bird-photographer-tag" style="background:#e0f2fe; color:#0369a1;">Photographer</span>
+        </div>
+        <div class="card-current" id="bird-funding-current">0 Coins</div>
+        <p style="font-size:12px; color:var(--text-muted); margin:4px 0 10px;">
+          Set the exact funding amount for the Bird Sanctuary:
+        </p>
+        <div class="input-row">
+          <input type="text" id="bird-funding-input" placeholder="Type amount (e.g. 50000, 250k, 2m)">
+          <button class="btn btn-primary" style="background:#0284c7;" onclick="setBirdFunding()">Set Funding</button>
+        </div>
+        <div style="display:flex; gap:6px; margin-top:8px; flex-wrap:wrap;">
+          <button class="btn btn-secondary btn-sm" style="flex:1;" onclick="addBirdFunding(10000)">+10,000</button>
+          <button class="btn btn-secondary btn-sm" style="flex:1;" onclick="addBirdFunding(50000)">+50,000</button>
+          <button class="btn btn-secondary btn-sm" style="flex:1;" onclick="addBirdFunding(250000)">+250,000</button>
+          <button class="btn btn-gold btn-sm" style="flex:1;" onclick="doEdit({action:'bird_funding', value:2000000})">Max 2M</button>
+        </div>
+      </div>
+
+      <!-- Funding Level Card -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h3>Sanctuary Funding Level</h3>
+            <span class="card-unit">Tier Progress (Rk)</span>
+          </div>
+          <span class="stat-tag tag-green" id="bird-level-badge">Level 1</span>
+        </div>
+        <div class="card-current" id="bird-level-title">Level 1/5</div>
+        <p style="font-size:12px; color:var(--text-muted); margin:4px 0 10px;">
+          Set the official sanctuary expansion level (1 to 5):
+        </p>
+        <div class="input-row">
+          <select id="bird-level-select">
+            <option value="1">Level 1 - Starter Sanctuary</option>
+            <option value="2">Level 2 - Basic Expansion</option>
+            <option value="3">Level 3 - Enhanced Habitat</option>
+            <option value="4">Level 4 - Major Attraction</option>
+            <option value="5" selected>Level 5 - Maximum Grand Sanctuary!</option>
+          </select>
+          <button class="btn btn-primary" style="background:#0284c7;" onclick="setBirdLevel()">Set Level</button>
+        </div>
+      </div>
+
+      <!-- Construction Projects Card -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h3>Construction Projects</h3>
+            <span class="card-unit">Park Upgrades (bldg.stuff)</span>
+          </div>
+          <span class="stat-tag" id="bird-projects-badge" style="background:#e0f2fe; color:#0369a1;">0/5 Built</span>
+        </div>
+        <div id="bird-projects-chips" class="chips-wrap" style="margin-bottom:14px;"></div>
+        <button class="btn btn-primary" id="btn-projects-build" style="width:100%; justify-content:center; background:#0284c7;" onclick="doEdit({action:'build_bird_sanctuary'})">
+          🔨 Build All 5 Sanctuary Projects
+        </button>
+      </div>
+
+      <!-- Bird Guide Card -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h3>Bird Guide Photographed</h3>
+            <span class="card-unit">Official Sightings (birds.stuff)</span>
+          </div>
+          <span class="stat-tag" id="bird-guide-badge" style="background:#fef08a; color:#854d0e;">0/40 Birds</span>
+        </div>
+        <div class="card-current" id="bird-guide-progress-text">0 / 40 Birds</div>
+        <div class="up-bar" style="margin:8px 0 14px; height:8px;">
+          <div class="up-bar-fill" id="bird-guide-bar-fill" style="width:0%; background:#0d9488;"></div>
+        </div>
+        <button class="btn btn-primary" id="btn-guide-complete" style="width:100%; justify-content:center; background:#0d9488;" onclick="doEdit({action:'complete_bird_guide'})">
+          🏆 Complete Entire Bird Guide (All 40 Birds with 3 Stars)
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 📸 PHOTO STUDIO & CANVAS PAINTER -->
+  <section class="group" id="photos">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:10px;">
+      <div>
+        <h2 style="margin:0;">📸 In-Game Photo Studio &amp; Painter</h2>
+        <span style="font-size:13px; color:var(--text-muted); font-weight:600;">Create, paint, or upload photos directly into Sasquatch's in-game photo album!</span>
+      </div>
+    </div>
+    <p class="sec-desc">
+      Paint your own custom pictures or upload any photo from your Mac. You can tag the photo as any bird species (e.g. Bald Eagle, Duck, Mallard, etc.) to automatically register it in the official Bird Guide and Bird Sanctuary!
+    </p>
+
+    <div class="studio-layout">
+      <!-- Left: Interactive Canvas & Painting Controls -->
+      <div class="canvas-wrapper">
+        <canvas id="photo-canvas" width="600" height="400"></canvas>
+
+        <!-- Canvas Toolbar -->
+        <div class="canvas-toolbar">
+          <div style="display:flex; gap:4px;">
+            <button type="button" class="tool-btn active canvas-control" id="tool-pen" onclick="setCanvasTool('pen')">✏️ Pen</button>
+            <button type="button" class="tool-btn canvas-control" id="tool-brush" onclick="setCanvasTool('brush')">🖌️ Brush</button>
+            <button type="button" class="tool-btn canvas-control" id="tool-eraser" onclick="setCanvasTool('eraser')">🧹 Eraser</button>
+            <button type="button" class="tool-btn canvas-control" id="tool-fill" onclick="setCanvasTool('fill')">🪣 Fill</button>
+          </div>
+
+          <!-- Brush Size Slider -->
+          <div style="display:flex; align-items:center; gap:6px; margin:0 8px;">
+            <label style="font-size:11px; font-weight:700;">Size:</label>
+            <input type="range" id="brush-size" class="canvas-control" min="1" max="40" value="6" style="width:70px; padding:0;" oninput="updateBrushSize(this.value)">
+            <span id="brush-size-val" style="font-size:11px; font-weight:700; min-width:20px;">6px</span>
+          </div>
+
+          <!-- Color Palette Swatches -->
+          <div style="display:flex; gap:4px; align-items:center;">
+            <div class="palette-swatch active canvas-control" style="background:#000000;" onclick="setColor('#000000', this)"></div>
+            <div class="palette-swatch canvas-control" style="background:#ffffff;" onclick="setColor('#ffffff', this)"></div>
+            <div class="palette-swatch canvas-control" style="background:#78350f;" onclick="setColor('#78350f', this)"></div>
+            <div class="palette-swatch canvas-control" style="background:#15803d;" onclick="setColor('#15803d', this)"></div>
+            <div class="palette-swatch canvas-control" style="background:#0284c7;" onclick="setColor('#0284c7', this)"></div>
+            <div class="palette-swatch canvas-control" style="background:#dc2626;" onclick="setColor('#dc2626', this)"></div>
+            <div class="palette-swatch canvas-control" style="background:#eab308;" onclick="setColor('#eab308', this)"></div>
+            <div class="palette-swatch canvas-control" style="background:#ea580c;" onclick="setColor('#ea580c', this)"></div>
+            <input type="color" id="native-color-picker" class="canvas-control" value="#000000" style="width:28px; height:28px; padding:0; border:none; cursor:pointer; border-radius:50%;" onchange="setColor(this.value)">
+          </div>
+
+          <!-- Quick Templates & Clear -->
+          <div style="display:flex; gap:4px; margin-left:auto;">
+            <button type="button" class="btn btn-secondary btn-sm canvas-control" onclick="applyCanvasTemplate('nature')">🌲 Nature BG</button>
+            <button type="button" class="btn btn-secondary btn-sm canvas-control" onclick="applyCanvasTemplate('bird_stamp')">🦆 Bird Stamp</button>
+            <button type="button" class="btn btn-secondary btn-sm canvas-control" onclick="clearCanvas()">🗑️ Clear</button>
+          </div>
+        </div>
+
+        <!-- Image Upload Button -->
+        <div style="display:flex; align-items:center; gap:10px; width:100%; background:#f1f5ee; padding:10px 14px; border-radius:8px; border:1px solid #dce4d9;">
+          <span style="font-size:12px; font-weight:700;">📁 Upload Image To Canvas:</span>
+          <input type="file" id="canvas-file-input" class="canvas-control" accept="image/png, image/jpeg, image/webp" style="font-size:12px; padding:4px;" onchange="handleImageUpload(event)">
+        </div>
+      </div>
+
+      <!-- Right: Photo Properties & Save to Album -->
+      <div style="display:flex; flex-direction:column; gap:14px; justify-content:space-between;">
+        <div>
+          <h3 style="margin:0 0 6px; font-size:16px;">Photo Registration</h3>
+          <p style="font-size:12px; color:var(--text-muted); margin:0 0 14px;">
+            Configure category and sighting details before saving to your in-game album.
+          </p>
+
+          <label style="display:block; font-size:11px; font-weight:700; margin-bottom:4px; text-transform:uppercase;">
+            Category
+          </label>
+          <select id="photo-category" class="canvas-control" onchange="onPhotoCategoryChange()" style="width:100%; margin-bottom:12px;">
+            <option value="bird" selected>🦅 Bird Photo (Official Sighting &amp; Sanctuary Credit)</option>
+            <option value="general">📸 General Album Photo (Camera Club / Fun)</option>
+          </select>
+
+          <!-- Bird Selector (Shown when Category = Bird) -->
+          <div id="photo-bird-settings">
+            <label style="display:block; font-size:11px; font-weight:700; margin-bottom:4px; text-transform:uppercase;">
+              Select Bird Species (All 40 Birds)
+            </label>
+            <select id="photo-bird-species" class="canvas-control" style="width:100%; margin-bottom:12px;">
+              <!-- Populated dynamically -->
+            </select>
+
+            <label style="display:block; font-size:11px; font-weight:700; margin-bottom:4px; text-transform:uppercase;">
+              Sighting Quality (Stars)
+            </label>
+            <select id="photo-bird-quality" class="canvas-control" style="width:100%; margin-bottom:12px;">
+              <option value="3" selected>⭐⭐⭐ 3 Stars (Perfect Masterpiece)</option>
+              <option value="2">⭐⭐ 2 Stars (Great Shot)</option>
+              <option value="1">⭐ 1 Star (Good Sighting)</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <button class="btn btn-primary canvas-control" id="btn-save-photo" style="width:100%; justify-content:center; font-size:14px; padding:12px;" onclick="savePhotoToGame()">
+            💾 Save Photo To Game Album
+          </button>
+          <small class="hint" style="text-align:center; margin-top:8px;">
+            Writes directly into <code>images/photo_*.png</code> and registers in <code>photos.stuff</code>, <code>lfs.stuff</code>, &amp; <code>birds.stuff</code>!
+          </small>
+        </div>
+      </div>
+    </div>
+
+    <!-- In-Game Photo Album Gallery -->
+    <div style="margin-top:24px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <h3 style="margin:0; font-size:16px;">🖼️ In-Game Photo Album Gallery</h3>
+        <span id="album-count-badge" class="stat-tag tag-green">0 Photos</span>
+      </div>
+      <div id="album-gallery-container" class="album-gallery">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ⚙️ CHANGE EVERY SINGLE THING (CUSTOM VARIABLE EDITOR) -->
+  <section class="group" id="custom-variables">
+    <h2>Variable shortcuts</h2>
+    <p class="sec-desc">Directly edit any key or variable in your save file (`variables.stuff`). Perfect for custom flags, story states, or any hidden values.</p>
+
+    <div class="custom-editor-box">
+      <div style="font-size:12px; font-weight:600; color:var(--text-muted); margin-bottom:6px;">Common Variable Presets (Click to fill):</div>
+      <div class="var-chips">
+        <span class="var-chip" onclick="fillVar('sM', '500000')">sM (Fire Funding)</span>
+        <span class="var-chip" onclick="fillVar('Og', '7')">Og (Firefighter Rank: 0-7)</span>
+        <span class="var-chip" onclick="fillVar('sR', '3')">sR (Doctor Rank: 0-3)</span>
+        <span class="var-chip" onclick="fillVar('BZ', '1')">BZ (Medical Diploma)</span>
+        <span class="var-chip" onclick="fillVar('3N', '0')">3N (Fire Promotion Pending)</span>
+        <span class="var-chip" onclick="fillVar('wa', '1')">wa (Arcade Game Upgrade)</span>
+        <span class="var-chip" onclick="fillVar('po', '1')">po (Fire Water Cannon)</span>
+        <span class="var-chip" onclick="fillVar('8T', '2')">8T (Fire Engine HP)</span>
+        <span class="var-chip" onclick="fillVar('R9', '4')">R9 (Fire Engine Tank)</span>
+        <span class="var-chip" onclick="fillVar('ni', '3')">ni (Fire Engine Hoses)</span>
+        <span class="var-chip" onclick="fillVar('wH', '4')">wH (Fire Jacket Protection)</span>
+        <span class="var-chip" onclick="fillVar('YK', '3')">YK (Fire Oxygen Tank)</span>
+        <span class="var-chip" onclick="fillVar('Oz', '5')">Oz (Salary Bonus %)</span>
+        <span class="var-chip" onclick="fillVar('nt', '500000')">nt (Bird Sanctuary Funding)</span>
+        <span class="var-chip" onclick="fillVar('Rk', '5')">Rk (Bird Sanctuary Level: 1-5)</span>
+        <span class="var-chip" onclick="fillVar('flag:sz', '1')">flag:sz (Is Bird Photographer)</span>
+        <span class="var-chip" onclick="fillVar('flag:NI7q', '1')">flag:NI7q (Sanctuary Boardwalk)</span>
+        <span class="var-chip" onclick="fillVar('flag:dri1', '1')">flag:dri1 (Sanctuary Tower)</span>
+      </div>
+
+      <div style="display:grid; grid-template-columns: 1fr 1fr auto; gap:10px; align-items:center;">
+        <div>
+          <label style="display:block; font-size:11px; font-weight:700; margin-bottom:4px;">VARIABLE KEY OR FLAG</label>
+          <input type="text" id="custom-var-key" placeholder="e.g. sM, Og, sR, or flag:cave_quest_completed">
+        </div>
+        <div>
+          <label style="display:block; font-size:11px; font-weight:700; margin-bottom:4px;">VALUE (NUMBER, TEXT, OR TRUE/FALSE)</label>
+          <input type="text" id="custom-var-val" placeholder="e.g. 500000, 1, or true">
+        </div>
+        <div style="padding-top:19px;">
+          <button class="btn btn-primary" onclick="setCustomVar()">Save Variable</button>
+        </div>
+      </div>
+      <small class="hint">Prefix with <code>flag:</code> to force writing inside the save's flags table, or use any standard key.</small>
+    </div>
+  </section>
+
+  <section class="group" id="save-fields">
+    <h2>Save fields</h2>
+    <p class="sec-desc">Browse the selected slot’s save files and edit values by key. Use the controls above for changes that affect multiple fields.</p>
+    <div class="card">
+      <form id="field-editor">
+        <div class="field-columns">
+          <div>
+            <label for="field-file">Save file</label>
+            <select id="field-file" data-browse></select>
+            <label for="field-search">Find a field</label>
+            <input type="search" id="field-search" placeholder="Filter by key" data-browse>
+            <label for="field-list">Fields</label>
+            <select id="field-list" size="8" data-browse></select>
+          </div>
+          <div>
+            <label for="field-key">Field key</label>
+            <input id="field-key" type="text" spellcheck="false" autocomplete="off" data-browse required>
+            <label for="field-value">JSON value</label>
+            <textarea id="field-value" spellcheck="false" rows="10" aria-describedby="field-help" required></textarea>
+            <small class="hint" id="field-help">Use quotes for text. Edit nested objects and arrays directly in the JSON.</small>
+            <div class="input-row">
+              <button type="submit" id="field-save" class="btn btn-primary">Save field</button>
+              <button type="button" id="field-reload" class="btn btn-secondary" data-browse>Reload file</button>
+            </div>
+          </div>
+        </div>
+        <p id="field-status" role="status"></p>
+      </form>
+    </div>
+  </section>
+
+  <footer>
+    Quit Sneaky Sasquatch with ⌘Q before editing. Backups are saved in <code>console-backups/</code>.
+    Undo restores the most recent unchanged file in the selected slot.
+  </footer>
+</main>
+
+<script>
+let currentSlot = Number(localStorage.getItem('ss_selected_slot')) || null;
+if (![1, 2, 3].includes(currentSlot)) currentSlot = null;
+let csrfToken = '';
+let isBlocked = false;
+let isBusy = false;
+let currentState = null;
+
+const $ = id => document.getElementById(id);
+
+function showNotice(text, type = 'normal') {
+  const n = $('notice');
+  $('notice-text').textContent = text;
+  n.className = type === 'error' ? 'error' : (type === 'warning' ? 'warning' : '');
+}
+
+function updateControls() {
+  const disabled = isBusy || isBlocked || !currentState;
+  document.querySelectorAll('button, input, select, textarea').forEach(control => {
+    if (control.matches('#refresh, nav.slots button, [data-browse]')) {
+      control.disabled = isBusy;
+    } else if (!control.matches('.canvas-control')) {
+      control.disabled = disabled || !!control.dataset.permDisabled;
+    }
+  });
+}
+
+function switchSlot(slot) {
+  if (isBusy || slot === currentSlot && currentState) return;
+  currentSlot = slot;
+  loadState();
+}
+
+function renderUI(data) {
+  currentState = data;
+  csrfToken = data.token;
+  isBlocked = !!data.blocked;
+  $('mode-badge').textContent = data.demo ? 'Demo · Sample saves' : 'Local editor';
+  currentSlot = data.slot;
+  localStorage.setItem('ss_selected_slot', String(data.slot));
+
+  document.querySelectorAll('nav.slots button').forEach(b => {
+    const selected = Number(b.dataset.slot) === data.slot;
+    b.classList.toggle('active', selected);
+    b.setAttribute('aria-pressed', String(selected));
+  });
+
+  // Render Slot Overview info on buttons
+  if (data.slotsOverview && Array.isArray(data.slotsOverview)) {
+    for (const s of data.slotsOverview) {
+      const sub = $(`slot${s.slot}-sub`);
+      if (sub) {
+        const isAct = s.slot === (data.activeSlot || 2);
+        const actBadge = isAct ? ' ★ (Most Recent Save)' : '';
+        sub.textContent = s.mtime ? `${s.vehicles_count} vehicles · ${Number(s.coins).toLocaleString()} coins${actBadge}` : 'No save found';
+      }
+    }
+  }
+
+  $('current-slot-title').textContent = `Slot ${data.slot} Loaded`;
+
+  if (data.blocked) {
+    showNotice(data.blocked, 'warning');
+  } else if (data.message) {
+    showNotice(data.message, 'normal');
+  } else {
+    showNotice(`Slot ${data.slot} is ready to edit.`, 'normal');
+  }
+
+  $('backup-path').textContent = data.backup ? `Backup: ${data.backup}` : '';
+
+  // Render Currencies
+  const curGrid = $('currencies-grid');
+  curGrid.replaceChildren();
+  for (const r of data.resources) {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <div class="card-header">
+        <h3>${r.label}</h3>
+        <span class="card-unit">${r.key.toUpperCase()}</span>
+      </div>
+      <div class="card-current">${Number(r.value).toLocaleString()}</div>
+      <div class="input-row">
+        <input type="text" id="cur-${r.key}" autocomplete="off" spellcheck="false">
+        <button class="btn btn-primary btn-sm" onclick="setCurrency('${r.key}')">Set</button>
+      </div>
+      <small class="hint">Type number (e.g. -2, 50k, 2m)</small>
+    `;
+    const input = card.querySelector('input');
+    input.value = r.value;
+    input.setAttribute('aria-label', r.label);
+    input.onkeydown = e => { if (e.key === 'Enter') setCurrency(r.key); };
+    curGrid.appendChild(card);
+  }
+
+  // Render Firefighter Information
+  const ff = data.firefighter || { funding: 0, level: 1, rank: 'Probationary Firefighter', upgrades: {} };
+  $('ff-funding-text').textContent = Number(ff.funding).toLocaleString();
+  $('ff-funding-badge').textContent = `${Number(ff.funding).toLocaleString()} Funding`;
+  $('ff-funding-input').value = ff.funding;
+  $('ff-rank-title').textContent = ff.rank;
+  $('ff-rank-badge').textContent = `Level ${ff.level}/8`;
+  $('ff-rank-select').value = String(ff.level);
+
+  // Firefighter Upgrades
+  const upGrid = $('ff-upgrades-grid');
+  upGrid.replaceChildren();
+  if (ff.upgrades) {
+    for (const [key, item] of Object.entries(ff.upgrades)) {
+      const pct = Math.min(100, Math.round((item.current / item.max) * 100));
+      const up = document.createElement('div');
+      up.className = 'up-item';
+      up.innerHTML = `
+        <div style="display:flex; justify-content:space-between;">
+          <strong>${item.label}</strong>
+          <span style="font-weight:700; color:${item.current >= item.max ? 'var(--primary)' : 'var(--text-muted)'};">
+            ${item.current}/${item.max}
+          </span>
+        </div>
+        <div class="up-bar">
+          <div class="up-bar-fill" style="width:${pct}%;"></div>
+        </div>
+      `;
+      upGrid.appendChild(up);
+    }
+  }
+
+  // Render Vehicles Catalog
+  allVehiclesCatalog = data.allVehicles || [];
+  renderVehiclesCatalog();
+
+  // Render Halloween Status & Candy
+  const hwn = data.halloween || { active: false, candy: 0 };
+  const hwnTag = $('hwn-status-tag');
+  if (hwnTag) {
+    if (hwn.active) {
+      hwnTag.textContent = '🎃 ACTIVE';
+      hwnTag.style.background = '#ffedd5';
+      hwnTag.style.color = '#c2410c';
+    } else {
+      hwnTag.textContent = '⚪ INACTIVE';
+      hwnTag.style.background = '#f1f5f9';
+      hwnTag.style.color = '#64748b';
+    }
+  }
+  const hwnCandyCurrent = $('hwn-candy-current');
+  if (hwnCandyCurrent) hwnCandyCurrent.textContent = Number(hwn.candy).toLocaleString() + ' Candy';
+  const hwnCandyInput = $('hwn-candy-input');
+  if (hwnCandyInput && !hwnCandyInput.value) hwnCandyInput.value = hwn.candy;
+
+  // Render Christmas Status, Candy Canes & Decorations
+  const xmas = data.christmas || { active: false, candyCanes: 0, forceToday: false, decorations: {} };
+  const xmasTag = $('xmas-status-tag');
+  if (xmasTag) {
+    if (xmas.active) {
+      xmasTag.textContent = '🎄 ACTIVE';
+      xmasTag.style.background = '#dcfce7';
+      xmasTag.style.color = '#15803d';
+    } else {
+      xmasTag.textContent = '⚪ INACTIVE';
+      xmasTag.style.background = '#f1f5f9';
+      xmasTag.style.color = '#64748b';
+    }
+  }
+  const xmasCanesCurrent = $('xmas-canes-current');
+  if (xmasCanesCurrent) xmasCanesCurrent.textContent = Number(xmas.candyCanes).toLocaleString() + ' Candy Canes';
+  const xmasCanesInput = $('xmas-canes-input');
+  if (xmasCanesInput && !xmasCanesInput.value) xmasCanesInput.value = xmas.candyCanes;
+
+  // Decorations chips
+  const decorContainer = $('xmas-decor-chips');
+  if (decorContainer && xmas.decorations) {
+    decorContainer.replaceChildren();
+    let unlockedCount = 0;
+    const totalCount = Object.keys(xmas.decorations).length;
+    for (const [key, d] of Object.entries(xmas.decorations)) {
+      if (d.unlocked) unlockedCount++;
+      const chip = document.createElement('span');
+      chip.className = 'chip';
+      chip.textContent = `${d.unlocked ? '✓' : '🔒'} ${d.name}`;
+      if (d.unlocked) {
+        chip.style.color = '#15803d';
+        chip.style.background = '#dcfce7';
+        chip.style.borderColor = '#86efac';
+      }
+      decorContainer.appendChild(chip);
+    }
+    const decorBadge = $('xmas-decor-badge');
+    if (decorBadge) {
+      decorBadge.textContent = `${unlockedCount}/${totalCount} Unlocked`;
+      if (unlockedCount === totalCount && totalCount > 0) {
+        decorBadge.style.background = '#dcfce7';
+        decorBadge.style.color = '#15803d';
+      } else {
+        decorBadge.style.background = '#e0f2fe';
+        decorBadge.style.color = '#0369a1';
+      }
+    }
+    const decorBtn = $('btn-xmas-decor');
+    if (decorBtn) {
+      if (unlockedCount === totalCount && totalCount > 0) {
+        decorBtn.disabled = true;
+        decorBtn.dataset.permDisabled = "true";
+        decorBtn.textContent = '✓ All 6 Christmas Decorations Already Unlocked';
+        decorBtn.className = 'btn btn-secondary btn-sm';
+      } else {
+        decorBtn.disabled = false;
+        delete decorBtn.dataset.permDisabled;
+        decorBtn.textContent = '🎁 Unlock All Christmas Decorations';
+        decorBtn.className = 'btn btn-primary btn-sm';
+      }
+    }
+  }
+
+  // Boost Xmas button in 1-Click boosts
+  const boostXmas = $('boost-xmas-btn');
+  if (boostXmas) {
+    const allDecor = xmas.decorations && Object.values(xmas.decorations).length > 0 && Object.values(xmas.decorations).every(d => d.unlocked);
+    if (xmas.active && xmas.candyCanes >= 2000000 && allDecor) {
+      boostXmas.disabled = true;
+      boostXmas.dataset.permDisabled = "true";
+      boostXmas.textContent = '✓ Christmas Event & Decor Maxed';
+    } else {
+      boostXmas.disabled = false;
+      delete boostXmas.dataset.permDisabled;
+      boostXmas.textContent = '🎄 Turn ON Christmas, Max Candy Canes & Unlock All Decorations';
+    }
+  }
+
+  // Render Raccoon Club & Badges
+  const rc = data.raccoonClub || { unlocked: false, badges: 0, earnedCount: 0, queuedCount: 0, totalAchievements: 80, readyToUnlock: false };
+  const rcTag = $('rc-status-tag');
+  if (rcTag) {
+    if (rc.unlocked) {
+      rcTag.textContent = '🦝 CLUBHOUSE UNLOCKED';
+      rcTag.style.background = '#dcfce7';
+      rcTag.style.color = '#15803d';
+    } else if (rc.readyToUnlock) {
+      rcTag.textContent = '🌟 READY TO ENTER (20+ Badges)';
+      rcTag.style.background = '#fef08a';
+      rcTag.style.color = '#854d0e';
+    } else {
+      rcTag.textContent = `🔒 LOCKED (${rc.badges}/20 Badges)`;
+      rcTag.style.background = '#f1f5f9';
+      rcTag.style.color = '#64748b';
+    }
+  }
+
+  const rcClubBtn = $('btn-rc-clubhouse');
+  const rcUnlockTopBtn = $('btn-rc-unlock');
+  if (rcClubBtn) {
+    if (rc.unlocked) {
+      rcClubBtn.disabled = true;
+      rcClubBtn.dataset.permDisabled = "true";
+      rcClubBtn.textContent = '✓ Clubhouse Already Unlocked';
+      rcClubBtn.className = 'btn btn-secondary';
+    } else {
+      rcClubBtn.disabled = false;
+      delete rcClubBtn.dataset.permDisabled;
+      rcClubBtn.textContent = '🦝 Unlock Clubhouse Now';
+      rcClubBtn.className = 'btn btn-primary';
+      rcClubBtn.style.background = '#ca8a04';
+    }
+  }
+  if (rcUnlockTopBtn) {
+    if (rc.unlocked) {
+      rcUnlockTopBtn.disabled = true;
+      rcUnlockTopBtn.dataset.permDisabled = "true";
+      rcUnlockTopBtn.textContent = '✓ Clubhouse Unlocked';
+      rcUnlockTopBtn.className = 'btn btn-secondary btn-sm';
+    } else {
+      rcUnlockTopBtn.disabled = false;
+      delete rcUnlockTopBtn.dataset.permDisabled;
+      rcUnlockTopBtn.textContent = '🦝 Unlock Raccoon Club';
+      rcUnlockTopBtn.className = 'btn btn-primary btn-sm';
+      rcUnlockTopBtn.style.background = '#ca8a04';
+    }
+  }
+
+  const rcBadgesCurrent = $('rc-badges-current');
+  if (rcBadgesCurrent) rcBadgesCurrent.textContent = `${Number(rc.badges).toLocaleString()} Badges`;
+  const rcBadgesInput = $('rc-badges-input');
+  if (rcBadgesInput && !rcBadgesInput.value) rcBadgesInput.value = rc.badges;
+
+  const rcSashBadge = $('rc-sash-badge');
+  if (rcSashBadge) {
+    rcSashBadge.textContent = `${rc.earnedCount}/${rc.totalAchievements} Badges`;
+    if (rc.earnedCount >= rc.totalAchievements) {
+      rcSashBadge.style.background = '#dcfce7';
+      rcSashBadge.style.color = '#15803d';
+    } else {
+      rcSashBadge.style.background = '#fef08a';
+      rcSashBadge.style.color = '#713f12';
+    }
+  }
+
+  const rcSashTitle = $('rc-sash-title');
+  if (rcSashTitle) {
+    rcSashTitle.textContent = rc.earnedCount >= rc.totalAchievements
+      ? '🌟 All 80 Badges Awarded On Sash!'
+      : `${rc.earnedCount} Badges Awarded On Sash`;
+  }
+
+  const rcAwardAllBtn = $('btn-rc-award-all');
+  const rcAllBadgesTopBtn = $('btn-rc-all-badges');
+  const allBadgesEarned = rc.earnedCount >= rc.totalAchievements && rc.badges >= 80 && rc.unlocked;
+  if (rcAwardAllBtn) {
+    if (allBadgesEarned) {
+      rcAwardAllBtn.disabled = true;
+      rcAwardAllBtn.dataset.permDisabled = "true";
+      rcAwardAllBtn.textContent = '✓ All 80 Badges Already On Sash';
+      rcAwardAllBtn.className = 'btn btn-secondary btn-sm';
+    } else {
+      rcAwardAllBtn.disabled = false;
+      delete rcAwardAllBtn.dataset.permDisabled;
+      rcAwardAllBtn.textContent = '🎖️ Award ALL 80 Badges To Sash';
+      rcAwardAllBtn.className = 'btn btn-primary btn-sm';
+      rcAwardAllBtn.style.background = '#ca8a04';
+    }
+  }
+  if (rcAllBadgesTopBtn) {
+    if (allBadgesEarned) {
+      rcAllBadgesTopBtn.disabled = true;
+      rcAllBadgesTopBtn.dataset.permDisabled = "true";
+      rcAllBadgesTopBtn.textContent = '✓ All 80 Badges On Sash';
+    } else {
+      rcAllBadgesTopBtn.disabled = false;
+      delete rcAllBadgesTopBtn.dataset.permDisabled;
+      rcAllBadgesTopBtn.textContent = '🎖️ Unlock ALL 80 Badges & Fill Sash';
+    }
+  }
+
+  // Boost button
+  const boostRaccoon = $('boost-raccoon-btn');
+  if (boostRaccoon) {
+    if (allBadgesEarned) {
+      boostRaccoon.disabled = true;
+      boostRaccoon.dataset.permDisabled = "true";
+      boostRaccoon.textContent = '✓ Raccoon Club & 80 Badges Maxed';
+    } else {
+      boostRaccoon.disabled = false;
+      delete boostRaccoon.dataset.permDisabled;
+      boostRaccoon.textContent = '🦝 Unlock Raccoon Club & Fill Sash (All 80 Badges)';
+    }
+  }
+
+  // Render Shoes
+  const shoesChips = $('shoes-status-chips');
+  shoesChips.replaceChildren();
+  const s = data.shoes || {};
+  const sneaky = document.createElement('span');
+  sneaky.className = 'chip';
+  sneaky.textContent = s.sneakyOwned ? '👟 Sneaky Shoes: OWNED & ACTIVE' : '👟 Sneaky Shoes: Locked';
+  if (s.sneakyOwned) sneaky.style.color = 'var(--primary)';
+  const running = document.createElement('span');
+  running.className = 'chip';
+  running.textContent = s.runningOwned ? '👟 Running Shoes: OWNED & ACTIVE' : '👟 Running Shoes: Locked';
+  if (s.runningOwned) running.style.color = 'var(--primary)';
+  shoesChips.append(sneaky, running);
+
+  // Update Shoes Action Buttons so owned stuff doesn't show unlock
+  const allShoesBtn = $('btn-shoes-all');
+  if (allShoesBtn) {
+    if (s.sneakyOwned && s.runningOwned && s.runningActive && s.sneakyActive) {
+      allShoesBtn.disabled = true;
+      allShoesBtn.dataset.permDisabled = "true";
+      allShoesBtn.textContent = '✓ All Shoes Already Unlocked & Active';
+      allShoesBtn.className = 'btn btn-secondary btn-sm';
+    } else {
+      allShoesBtn.disabled = false;
+      delete allShoesBtn.dataset.permDisabled;
+      allShoesBtn.textContent = '⚡ Unlock ALL Shoes (Sneaky + Running + Sprinting)';
+      allShoesBtn.className = 'btn btn-primary btn-sm';
+    }
+  }
+
+  const sneakyBtn = $('btn-shoes-sneaky');
+  if (sneakyBtn) {
+    if (s.sneakyOwned && s.sneakyActive) {
+      sneakyBtn.disabled = true;
+      sneakyBtn.dataset.permDisabled = "true";
+      sneakyBtn.textContent = '✓ Sneaky Shoes Active';
+    } else {
+      sneakyBtn.disabled = false;
+      delete sneakyBtn.dataset.permDisabled;
+      sneakyBtn.textContent = s.sneakyOwned ? 'Activate Sneaky Shoes' : 'Own & Activate Sneaky Shoes';
+    }
+  }
+
+  const runningBtn = $('btn-shoes-running');
+  if (runningBtn) {
+    if (s.runningOwned && s.runningActive) {
+      runningBtn.disabled = true;
+      runningBtn.dataset.permDisabled = "true";
+      runningBtn.textContent = '✓ Running Shoes Active';
+    } else {
+      runningBtn.disabled = false;
+      delete runningBtn.dataset.permDisabled;
+      runningBtn.textContent = s.runningOwned ? 'Activate Running Shoes' : 'Own & Activate Running Shoes';
+    }
+  }
+
+  // Render Doctor
+  const doc = data.doctor || { level: 1, rank: 'Junior Doctor' };
+  $('doctor-rank-title').textContent = doc.rank;
+  $('doctor-rank-badge').textContent = doc.level ? `Level ${doc.level}/4` : 'Not Started';
+  if (doc.level) $('doctor-rank-select').value = String(doc.level);
+  const docBtn = $('btn-doctor-rank');
+  if (docBtn) {
+    if (doc.level === 4) {
+      docBtn.disabled = true;
+      docBtn.dataset.permDisabled = "true";
+      docBtn.textContent = '✓ Max Rank (Head Doctor)';
+    } else {
+      docBtn.disabled = false;
+      delete docBtn.dataset.permDisabled;
+      docBtn.textContent = 'Set Rank';
+    }
+  }
+
+  // Render Bird Sanctuary
+  const bs = data.birdSanctuary || { funding: 0, level: 1, isPhotographer: false, projects: {}, allBuilt: false, photographedCount: 0, totalBirds: 40, birds: {} };
+  const birdSubtitle = $('bird-summary-subtitle');
+  if (birdSubtitle) {
+    birdSubtitle.textContent = `${Number(bs.funding).toLocaleString()} Funding · Level ${bs.level}/5 · ${bs.photographedCount}/${bs.totalBirds} Birds Photographed`;
+  }
+  const birdFundCurrent = $('bird-funding-current');
+  if (birdFundCurrent) birdFundCurrent.textContent = Number(bs.funding).toLocaleString() + ' Coins';
+  const birdFundInput = $('bird-funding-input');
+  if (birdFundInput && !birdFundInput.value) birdFundInput.value = bs.funding;
+
+  const birdPhotoTag = $('bird-photographer-tag');
+  if (birdPhotoTag) {
+    if (bs.isPhotographer) {
+      birdPhotoTag.textContent = '✓ OFFICIAL PHOTOGRAPHER';
+      birdPhotoTag.style.background = '#dcfce7';
+      birdPhotoTag.style.color = '#15803d';
+    } else {
+      birdPhotoTag.textContent = '⚪ VISITOR';
+      birdPhotoTag.style.background = '#f1f5f9';
+      birdPhotoTag.style.color = '#64748b';
+    }
+  }
+
+  const birdLvlBadge = $('bird-level-badge');
+  if (birdLvlBadge) birdLvlBadge.textContent = `Level ${bs.level}/5`;
+  const birdLvlTitle = $('bird-level-title');
+  if (birdLvlTitle) birdLvlTitle.textContent = `Tier ${bs.level} Expansion`;
+  const birdLvlSelect = $('bird-level-select');
+  if (birdLvlSelect) birdLvlSelect.value = String(bs.level);
+
+  // Projects chips
+  const projChips = $('bird-projects-chips');
+  if (projChips && bs.projects) {
+    projChips.replaceChildren();
+    let builtCount = 0;
+    const totalProj = Object.keys(bs.projects).length;
+    for (const [key, p] of Object.entries(bs.projects)) {
+      if (p.built) builtCount++;
+      const chip = document.createElement('span');
+      chip.className = 'chip';
+      chip.textContent = `${p.built ? '✓' : '🔒'} ${p.name}`;
+      if (p.built) {
+        chip.style.color = '#15803d';
+        chip.style.background = '#dcfce7';
+        chip.style.borderColor = '#86efac';
+      }
+      projChips.appendChild(chip);
+    }
+    const projBadge = $('bird-projects-badge');
+    if (projBadge) {
+      projBadge.textContent = `${builtCount}/${totalProj} Built`;
+      if (builtCount === totalProj && totalProj > 0) {
+        projBadge.style.background = '#dcfce7';
+        projBadge.style.color = '#15803d';
+      } else {
+        projBadge.style.background = '#e0f2fe';
+        projBadge.style.color = '#0369a1';
+      }
+    }
+    const buildBtn = $('btn-projects-build');
+    if (buildBtn) {
+      if (builtCount === totalProj && totalProj > 0) {
+        buildBtn.disabled = true;
+        buildBtn.dataset.permDisabled = "true";
+        buildBtn.textContent = '✓ All 5 Sanctuary Projects Built';
+        buildBtn.className = 'btn btn-secondary btn-sm';
+      } else {
+        buildBtn.disabled = false;
+        delete buildBtn.dataset.permDisabled;
+        buildBtn.textContent = '🔨 Build All 5 Sanctuary Projects';
+        buildBtn.className = 'btn btn-primary btn-sm';
+        buildBtn.style.background = '#0284c7';
+      }
+    }
+  }
+
+  // Bird Guide status
+  const guideBadge = $('bird-guide-badge');
+  if (guideBadge) {
+    guideBadge.textContent = `${bs.photographedCount}/${bs.totalBirds} Birds`;
+    if (bs.photographedCount >= bs.totalBirds) {
+      guideBadge.style.background = '#dcfce7';
+      guideBadge.style.color = '#15803d';
+    } else {
+      guideBadge.style.background = '#fef08a';
+      guideBadge.style.color = '#854d0e';
+    }
+  }
+  const guideProgress = $('bird-guide-progress-text');
+  if (guideProgress) {
+    guideProgress.textContent = `${bs.photographedCount} / ${bs.totalBirds} Birds Photographed`;
+  }
+  const guideFill = $('bird-guide-bar-fill');
+  if (guideFill) {
+    const pct = Math.min(100, Math.round((bs.photographedCount / bs.totalBirds) * 100));
+    guideFill.style.width = `${pct}%`;
+  }
+  const guideCompleteBtn = $('btn-guide-complete');
+  if (guideCompleteBtn) {
+    if (bs.photographedCount >= bs.totalBirds) {
+      guideCompleteBtn.disabled = true;
+      guideCompleteBtn.dataset.permDisabled = "true";
+      guideCompleteBtn.textContent = '✓ Entire Bird Guide Completed (All 40 Birds 3-Stars)';
+      guideCompleteBtn.className = 'btn btn-secondary';
+    } else {
+      guideCompleteBtn.disabled = false;
+      delete guideCompleteBtn.dataset.permDisabled;
+      guideCompleteBtn.textContent = '🏆 Complete Entire Bird Guide (All 40 Birds with 3 Stars)';
+      guideCompleteBtn.className = 'btn btn-primary';
+      guideCompleteBtn.style.background = '#0d9488';
+    }
+  }
+
+  // Populate Bird Species Dropdown in Photo Studio
+  const birdSelect = $('photo-bird-species');
+  if (birdSelect && data.allBirds) {
+    const currentVal = birdSelect.value;
+    birdSelect.replaceChildren();
+    const sortedEntries = Object.entries(data.allBirds).sort((a, b) => a[1].localeCompare(b[1]));
+    for (const [code, name] of sortedEntries) {
+      const opt = document.createElement('option');
+      opt.value = code;
+      const bInfo = bs.birds && bs.birds[code];
+      const starStr = (bInfo && bInfo.stars > 0) ? ' (' + '⭐'.repeat(bInfo.stars) + ')' : ' (Unphotographed)';
+      opt.textContent = `${name}${starStr}`;
+      if (code === currentVal) opt.selected = true;
+      birdSelect.appendChild(opt);
+    }
+  }
+
+  // Render In-Game Photo Album Gallery
+  const albumContainer = $('album-gallery-container');
+  const photos = data.photos || [];
+  const albumBadge = $('album-count-badge');
+  if (albumBadge) albumBadge.textContent = `${photos.length} Photo${photos.length === 1 ? '' : 's'}`;
+  if (albumContainer) {
+    albumContainer.replaceChildren();
+    if (photos.length === 0) {
+      albumContainer.innerHTML = '<div style="grid-column:1/-1; padding:20px; text-align:center; color:var(--text-muted); font-size:13px;">No photos in game album yet. Paint or upload a photo above to add one!</div>';
+    } else {
+      for (const p of photos) {
+        const card = document.createElement('div');
+        card.className = 'album-thumb-card';
+        if (typeof p.id !== 'string' || !/^[a-z0-9_-]+$/i.test(p.id)) continue;
+        const image = document.createElement('img');
+        image.src = `/api/photo_image/${p.id}?slot=${currentSlot}`;
+        image.alt = `Photo ${p.id}`;
+        image.loading = 'lazy';
+        const meta = document.createElement('div');
+        meta.className = 'album-thumb-meta';
+        const title = document.createElement('strong');
+        title.textContent = `ID: ${p.id}`;
+        const caption = document.createElement('span');
+        caption.textContent = p.birds.length
+          ? p.birds.map(b => `${b.name} (${Math.max(0, Math.min(3, Number(b.stars) || 0))}/3)`).join(', ')
+          : 'Album photo';
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'btn btn-secondary btn-sm';
+        button.textContent = 'Load in Painter';
+        button.onclick = () => loadPhotoToCanvas(p.id);
+        meta.append(title, caption, button);
+        card.append(image, meta);
+        albumContainer.appendChild(card);
+      }
+    }
+  }
+
+  // Boost Bird Sanctuary Button
+  const boostBird = $('boost-bird-btn');
+  if (boostBird) {
+    const isMaxed = bs.funding >= 2000000 && bs.level === 5 && bs.allBuilt && bs.photographedCount >= bs.totalBirds;
+    if (isMaxed) {
+      boostBird.disabled = true;
+      boostBird.dataset.permDisabled = "true";
+      boostBird.textContent = '✓ Bird Sanctuary & Bird Guide Maxed';
+    } else {
+      boostBird.disabled = false;
+      delete boostBird.dataset.permDisabled;
+      boostBird.textContent = '🦅 Max Bird Sanctuary ($2M), Build All Projects & Complete Bird Guide';
+    }
+  }
+
+  // Update 1-Click Boost Buttons so user knows what's already owned
+  const boostVeh = $('boost-max-cars-btn');
+  if (boostVeh) {
+    const allVehOwned = allVehiclesCatalog.length > 0 && allVehiclesCatalog.every(v => v.owned);
+    if (allVehOwned) {
+      boostVeh.disabled = true;
+      boostVeh.dataset.permDisabled = "true";
+      boostVeh.textContent = '✓ All 33 Vehicles Owned & Maxed';
+    } else {
+      boostVeh.disabled = false;
+      delete boostVeh.dataset.permDisabled;
+      boostVeh.textContent = '🏎️ Unlock Every Single Car (All 30+ Vehicles) & Max Lvl 5';
+    }
+  }
+
+  const boostShoes = $('boost-shoes-btn');
+  if (boostShoes) {
+    if (s.sneakyOwned && s.runningOwned && s.runningActive && s.sneakyActive) {
+      boostShoes.disabled = true;
+      boostShoes.dataset.permDisabled = "true";
+      boostShoes.textContent = '✓ All Shoes Owned & Active';
+    } else {
+      boostShoes.disabled = false;
+      delete boostShoes.dataset.permDisabled;
+      boostShoes.textContent = '👟 Unlock & Activate ALL Shoes (Sneaky + Running + Sprinting)';
+    }
+  }
+
+  const boostDoc = $('boost-doctor-btn');
+  if (boostDoc) {
+    if (doc.level === 4) {
+      boostDoc.disabled = true;
+      boostDoc.dataset.permDisabled = "true";
+      boostDoc.textContent = '✓ Junior Head Doctor (Max Rank)';
+    } else {
+      boostDoc.disabled = false;
+      delete boostDoc.dataset.permDisabled;
+      boostDoc.textContent = '🩺 Max Doctor Rank (Junior Head Doctor)';
+    }
+  }
+
+  const boostFire = $('boost-fire-btn');
+  if (boostFire) {
+    if (ff.level === 8 && ff.funding >= 500000) {
+      boostFire.disabled = true;
+      boostFire.dataset.permDisabled = "true";
+      boostFire.textContent = '✓ Fire Station Maxed (Rank 8/8)';
+    } else {
+      boostFire.disabled = false;
+      delete boostFire.dataset.permDisabled;
+      boostFire.textContent = '🚒 Max Fire Station & Battalion Chief (Rank 8/8)';
+    }
+  }
+
+  updateControls();
+}
+
+async function loadState() {
+  if (isBusy) return;
+  isBusy = true;
+  currentState = null;
+  csrfToken = '';
+  updateControls();
+  try {
+    const res = await fetch(currentSlot ? `/api/state?slot=${currentSlot}` : '/api/state');
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to load save state');
+    renderUI(data);
+    return true;
+  } catch (err) {
+    currentState = null;
+    $('current-slot-title').textContent = currentSlot ? `Slot ${currentSlot} unavailable` : 'No save loaded';
+    $('backup-path').textContent = '';
+    showNotice(err.message, 'error');
+    return false;
+  } finally {
+    isBusy = false;
+    updateControls();
+    document.dispatchEvent(new Event('studio-state'));
+  }
+}
+
+async function doEdit(payload) {
+  if (isBusy || isBlocked || !currentState) return false;
+  isBusy = true;
+  updateControls();
+  try {
+    const res = await fetch('/api/edit', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-SS-Token': csrfToken
+      },
+      body: JSON.stringify({ ...payload, slot: currentSlot })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Save edit failed');
+    renderUI(data);
+    return true;
+  } catch (err) {
+    showNotice(err.message, 'error');
+    return false;
+  } finally {
+    isBusy = false;
+    updateControls();
+    document.dispatchEvent(new Event('studio-state'));
+  }
+}
+
+function setCurrency(key) {
+  const input = $(`cur-${key}`);
+  if (input) {
+    doEdit({ action: 'currency', key, value: input.value });
+  }
+}
+
+function setFireFunding() {
+  const val = $('ff-funding-input').value;
+  doEdit({ action: 'fire_funding', value: val });
+}
+
+function setFireFundingVal(val) {
+  $('ff-funding-input').value = val;
+  doEdit({ action: 'fire_funding', value: String(val) });
+}
+
+function setFireRank() {
+  const lvl = Number($('ff-rank-select').value);
+  doEdit({ action: 'fire_rank', level: lvl });
+}
+
+function setDoctorRank() {
+  const lvl = Number($('doctor-rank-select').value);
+  doEdit({ action: 'doctor', level: lvl });
+}
+
+let allVehiclesCatalog = [];
+let currentVehicleCategory = 'All';
+let currentVehicleOwnershipFilter = 'all';
+
+const VEHICLE_EMOJIS = {
+  'car': '🚗', 'sportscar': '🏎️', 'supercar': '⚡🏎️', 'pickupTruck': '🛻',
+  'gokart': '🏎️', 'golfcart': '🛺', 'polcar': '🚓', 'j7': '🚕',
+  'Jo': '🚙', 'Ow': '🚜', 'VL': '🛷', '5J': '🛷',
+  'JE': '🏍️', 'pH': '🏍️', 'kp': '🏍️', 'Jy': '🏍️',
+  'Xw': '🚲', 'Ae': '🛵', 'Fm': '🛵',
+  'xD': '🚤', 'OF': '🚤', 'As': '🛥️', 'zk': '🛶', 'canoe': '🛶', '1b': '🛟', 'vX': '⛴️',
+  'dj': '🚜', 'ZL': '🚜', 'deliveryVan': '🚐', 'Xe': '🚐', 'ux': '🚌',
+  'J1': '🚑', 'aS': '🚒', 'Ek': '🚒'
+};
+
+function onVehicleSearchInput() {
+  renderVehiclesCatalog();
+  updateSearchUnlockButton();
+}
+
+function setVehicleCategory(cat) {
+  currentVehicleCategory = cat;
+  const pills = $('vehicle-cat-pills')?.querySelectorAll('.filter-pill');
+  if (pills) {
+    pills.forEach(p => {
+      if (p.textContent.includes(cat) || (cat === 'All' && p.textContent.includes('All'))) {
+        p.classList.add('active');
+      } else {
+        p.classList.remove('active');
+      }
+    });
+  }
+  renderVehiclesCatalog();
+}
+
+function setVehicleOwnershipFilter(filter) {
+  currentVehicleOwnershipFilter = filter;
+  renderVehiclesCatalog();
+}
+
+function findMatchingVehicle(rawQuery) {
+  if (!rawQuery || !allVehiclesCatalog || !allVehiclesCatalog.length) return null;
+  const q = rawQuery.toLowerCase().trim();
+  if (!q) return null;
+
+  // Exact ID
+  const exactId = allVehiclesCatalog.find(v => v.id.toLowerCase() === q);
+  if (exactId) return exactId;
+
+  // Exact Name
+  const exactName = allVehiclesCatalog.find(v => v.name.toLowerCase() === q);
+  if (exactName) return exactName;
+
+  // Known Aliases
+  let aliasId = null;
+  if (q.includes('slow') || q.includes('snowmobile') || q.includes('snow mobile')) {
+    aliasId = 'VL'; // Snowmobile
+  } else if (q.includes('pickup') || (q.includes('truck') && !q.includes('fire'))) {
+    aliasId = 'pickupTruck';
+  } else if (q.includes('forklift')) {
+    aliasId = 'dj';
+  } else if (q.includes('dirt bike') || q.includes('dirtbike')) {
+    aliasId = 'JE';
+  } else if (q.includes('sports car') || q.includes('sportscar')) {
+    aliasId = 'sportscar';
+  } else if (q.includes('super car') || q.includes('supercar')) {
+    aliasId = 'supercar';
+  } else if (q.includes('golf cart') || q.includes('golfcart')) {
+    aliasId = 'golfcart';
+  } else if (q.includes('police') || q.includes('cop')) {
+    aliasId = 'polcar';
+  } else if (q.includes('ambulance') || q.includes('medic')) {
+    aliasId = 'J1';
+  } else if (q.includes('fire engine') || q.includes('fire truck') || q.includes('firetruck')) {
+    aliasId = 'Ek';
+  } else if (q.includes('go kart') || q.includes('gokart')) {
+    aliasId = 'gokart';
+  } else if (q.includes('bicycle') || (q.includes('bike') && !q.includes('dirt') && !q.includes('motor'))) {
+    aliasId = 'Xw';
+  } else if (q.includes('chopper') || q.includes('motorcycle')) {
+    aliasId = 'pH';
+  } else if (q.includes('scooter') || q.includes('moped')) {
+    aliasId = 'Ae';
+  } else if (q.includes('jetski') || q.includes('jet ski')) {
+    aliasId = 'OF';
+  } else if (q.includes('speed boat') || q.includes('speedboat') || (q.includes('boat') && !q.includes('canoe'))) {
+    aliasId = 'xD';
+  } else if (q.includes('canoe')) {
+    aliasId = 'canoe';
+  } else if (q.includes('ferry')) {
+    aliasId = 'vX';
+  } else if (q.includes('delivery') || (q.includes('van') && !q.includes('jeep'))) {
+    aliasId = 'deliveryVan';
+  } else if (q.includes('jeep') || q.includes('4x4')) {
+    aliasId = 'Jo';
+  } else if (q.includes('tractor')) {
+    aliasId = 'ZL';
+  }
+
+  if (aliasId) {
+    const matched = allVehiclesCatalog.find(v => v.id === aliasId);
+    if (matched) return matched;
+  }
+
+  // Substring in Name
+  const subName = allVehiclesCatalog.find(v => v.name.toLowerCase().includes(q));
+  if (subName) return subName;
+
+  // Substring in ID
+  const subId = allVehiclesCatalog.find(v => v.id.toLowerCase().includes(q));
+  if (subId) return subId;
+
+  return null;
+}
+
+function updateSearchUnlockButton() {
+  const input = $('vehicle-search');
+  const btn = $('unlock-typed-btn');
+  const hint = $('vehicle-search-hint');
+  if (!btn) return;
+
+  const rawQuery = (input?.value || '').trim();
+  if (!rawQuery) {
+    btn.disabled = false;
+    delete btn.dataset.permDisabled;
+    btn.textContent = '✨ Unlock Car';
+    btn.className = 'btn btn-primary';
+    btn.style.background = '';
+    btn.style.color = '';
+    btn.style.borderColor = '';
+    btn.style.cursor = 'pointer';
+    if (hint) hint.innerHTML = '';
+    return;
+  }
+
+  const v = findMatchingVehicle(rawQuery);
+  if (v) {
+    if (v.owned) {
+      btn.disabled = true;
+      btn.dataset.permDisabled = "true";
+      btn.textContent = `✓ ${v.name} Already Owned!`;
+      btn.className = 'btn btn-secondary';
+      btn.style.background = '#dcfce7';
+      btn.style.color = '#15803d';
+      btn.style.borderColor = '#86efac';
+      btn.style.cursor = 'default';
+      if (hint) {
+        hint.innerHTML = `<span style="color:#15803d; font-weight:700;">✓ You already own the ${v.name} in Slot ${currentSlot}! (Garage Level ${v.level || 1}) — no unlock needed.</span>`;
+      }
+    } else {
+      btn.disabled = false;
+      delete btn.dataset.permDisabled;
+      btn.textContent = `✨ Unlock ${v.name}`;
+      btn.className = 'btn btn-primary';
+      btn.style.background = '';
+      btn.style.color = '';
+      btn.style.borderColor = '';
+      btn.style.cursor = 'pointer';
+      if (hint) {
+        hint.innerHTML = `<span style="color:var(--primary); font-weight:600;">🔒 ${v.name} is currently locked. Click to unlock it now!</span>`;
+      }
+    }
+  } else {
+    btn.disabled = false;
+    delete btn.dataset.permDisabled;
+    btn.textContent = `✨ Unlock "${rawQuery}"`;
+    btn.className = 'btn btn-primary';
+    btn.style.background = '';
+    btn.style.color = '';
+    btn.style.borderColor = '';
+    btn.style.cursor = 'pointer';
+    if (hint) {
+      hint.innerHTML = `<span style="color:var(--text-muted);">Vehicle not found in catalog; click to attempt unlock.</span>`;
+    }
+  }
+}
+
+function renderVehiclesCatalog() {
+  const grid = $('vehicles-catalog-grid');
+  if (!grid) return;
+  grid.replaceChildren();
+
+  const search = ($('vehicle-search')?.value || '').toLowerCase().trim();
+  const ownedTotal = allVehiclesCatalog.filter(v => v.owned).length;
+  const summary = $('vehicles-owned-summary');
+  if (summary) summary.textContent = `${ownedTotal} / ${allVehiclesCatalog.length} Vehicles Owned in Slot ${currentSlot}`;
+
+  // Update top buttons so owned fleet doesn't show redundant unlock
+  const allVehOwned = allVehiclesCatalog.length > 0 && allVehiclesCatalog.every(v => v.owned);
+  const unlockAllBtn = $('veh-unlock-all-btn');
+  if (unlockAllBtn) {
+    if (allVehOwned) {
+      unlockAllBtn.disabled = true;
+      unlockAllBtn.dataset.permDisabled = "true";
+      unlockAllBtn.textContent = '✓ All 33 Vehicles Already Owned & Unlocked';
+      unlockAllBtn.className = 'btn btn-secondary btn-sm';
+    } else {
+      unlockAllBtn.disabled = false;
+      delete unlockAllBtn.dataset.permDisabled;
+      unlockAllBtn.textContent = '🌟 Unlock Every Single Car (All 30+ Vehicles)';
+      unlockAllBtn.className = 'btn btn-primary btn-sm';
+    }
+  }
+
+  const allVehMaxed = allVehiclesCatalog.length > 0 && allVehiclesCatalog.every(v => v.owned && (v.level === 5 || v.level === undefined));
+  const maxLvlBtn = $('veh-max-levels-btn');
+  if (maxLvlBtn) {
+    if (allVehMaxed) {
+      maxLvlBtn.disabled = true;
+      maxLvlBtn.dataset.permDisabled = "true";
+      maxLvlBtn.textContent = '✓ All Garage Levels Maxed (Lvl 5)';
+    } else {
+      maxLvlBtn.disabled = false;
+      delete maxLvlBtn.dataset.permDisabled;
+      maxLvlBtn.textContent = '⚡ Max Out All Garage Levels (Lvl 5)';
+    }
+  }
+
+  let filtered = allVehiclesCatalog;
+
+  if (currentVehicleCategory !== 'All') {
+    filtered = filtered.filter(v => {
+      if (currentVehicleCategory === 'Trucks') return v.category === 'Trucks' || v.category === 'Off-Road';
+      if (currentVehicleCategory === 'Commercial') return v.category === 'Commercial' || v.category === 'Industrial';
+      return v.category === currentVehicleCategory;
+    });
+  }
+
+  if (currentVehicleOwnershipFilter === 'owned') {
+    filtered = filtered.filter(v => v.owned);
+  } else if (currentVehicleOwnershipFilter === 'locked') {
+    filtered = filtered.filter(v => !v.owned);
+  }
+
+  if (search) {
+    filtered = filtered.filter(v => {
+      const idMatch = v.id.toLowerCase().includes(search);
+      const nameMatch = v.name.toLowerCase().includes(search);
+      const catMatch = v.category.toLowerCase().includes(search);
+
+      let aliasMatch = false;
+      if (search.includes('slow') || search.includes('snow')) {
+        aliasMatch = (v.id === 'VL' || v.id === '5J');
+      } else if (search.includes('pickup') || search.includes('truck')) {
+        aliasMatch = (v.id === 'pickupTruck' || v.id === 'Jo');
+      } else if (search.includes('forklift')) {
+        aliasMatch = (v.id === 'dj');
+      } else if (search.includes('bike')) {
+        aliasMatch = ['JE', 'pH', 'kp', 'Jy', 'Xw', 'Ae', 'Fm'].includes(v.id);
+      } else if (search.includes('boat') || search.includes('jet')) {
+        aliasMatch = ['xD', 'OF', 'As', 'zk', 'canoe', '1b', 'vX'].includes(v.id);
+      } else if (search.includes('police') || search.includes('cop')) {
+        aliasMatch = (v.id === 'polcar');
+      } else if (search.includes('fire')) {
+        aliasMatch = (v.id === 'aS' || v.id === 'Ek');
+      } else if (search.includes('amb')) {
+        aliasMatch = (v.id === 'J1');
+      } else if (search.includes('kart')) {
+        aliasMatch = (v.id === 'gokart');
+      } else if (search.includes('jeep') || search.includes('4x4')) {
+        aliasMatch = (v.id === 'Jo');
+      }
+      return idMatch || nameMatch || catMatch || aliasMatch;
+    });
+  }
+
+  const countSpan = $('vehicle-filter-count');
+  if (countSpan) countSpan.textContent = `Showing ${filtered.length} of ${allVehiclesCatalog.length} vehicles`;
+
+  if (filtered.length === 0) {
+    const empty = document.createElement('div');
+    empty.style.gridColumn = '1 / -1';
+    empty.style.padding = '36px';
+    empty.style.textAlign = 'center';
+    empty.style.color = 'var(--text-muted)';
+    empty.textContent = `No vehicles match “${search}”. Try a name such as pickup or dirt bike.`;
+    grid.appendChild(empty);
+    updateSearchUnlockButton();
+    return;
+  }
+
+  for (const v of filtered) {
+    const card = document.createElement('div');
+    card.className = `veh-card ${v.owned ? 'is-owned' : ''}`;
+    const emoji = VEHICLE_EMOJIS[v.id] || '🚗';
+
+    let statusBadge = '';
+    let actionArea = '';
+
+    if (v.owned) {
+      statusBadge = `<span class="badge-owned">✓ ALREADY OWNED</span>`;
+      const lvl = v.level || 1;
+      const isMax = lvl === 5;
+      actionArea = `
+        <div style="margin-top:8px; padding-top:10px; border-top:1px solid var(--card-border);">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <span style="font-size:12px; font-weight:700;">Garage Upgrade</span>
+            <span class="stat-tag tag-green" style="font-size:11px; padding:2px 7px;">Level ${lvl}/5</span>
+          </div>
+          <div class="input-row" style="margin-top:4px;">
+            <select id="tune-${v.id}" style="font-size:12px; padding:6px 8px;">
+              <option value="1" ${lvl === 1 ? 'selected' : ''}>Lvl 1</option>
+              <option value="2" ${lvl === 2 ? 'selected' : ''}>Lvl 2</option>
+              <option value="3" ${lvl === 3 ? 'selected' : ''}>Lvl 3</option>
+              <option value="4" ${lvl === 4 ? 'selected' : ''}>Lvl 4</option>
+              <option value="5" ${lvl === 5 ? 'selected' : ''}>Lvl 5 (Max)</option>
+            </select>
+            <button class="btn btn-secondary btn-sm" onclick="setCarLevel('${v.id}')">Set</button>
+            ${isMax 
+              ? `<button class="btn btn-secondary btn-sm" disabled data-perm-disabled="true" style="opacity:0.75; cursor:default;">✓ Maxed</button>`
+              : `<button class="btn btn-primary btn-sm" onclick="quickMaxCar('${v.id}')">Max 5</button>`
+            }
+          </div>
+        </div>
+      `;
+    } else {
+      statusBadge = `<span class="badge-locked">🔒 LOCKED</span>`;
+      actionArea = `
+        <div style="margin-top:10px;">
+          <button class="btn btn-primary btn-sm" style="width:100%; justify-content:center;" onclick="unlockVehicle('${v.id}')">
+            ✨ Unlock ${v.name}
+          </button>
+        </div>
+      `;
+    }
+
+    card.innerHTML = `
+      <div>
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px; margin-bottom:6px;">
+          <div>
+            <div style="font-size:17px; font-weight:800; color:var(--text); line-height:1.2;">
+              ${emoji} ${v.name}
+            </div>
+            <div style="font-size:11px; color:var(--text-muted); font-family:ui-monospace, monospace; margin-top:3px;">
+              ID: <strong>${v.id}</strong> · Category: ${v.category}
+            </div>
+          </div>
+          ${statusBadge}
+        </div>
+      </div>
+      ${actionArea}
+    `;
+    grid.appendChild(card);
+  }
+
+  updateSearchUnlockButton();
+}
+
+function unlockVehicle(id) {
+  const v = allVehiclesCatalog.find(item => item.id === id);
+  if (v && v.owned) {
+    showNotice(`You already own ${v.name} in Slot ${currentSlot}! No need to unlock again.`, 'warning');
+    return;
+  }
+  doEdit({ action: 'own', car: id });
+}
+
+function setCarLevel(id) {
+  const select = $(`tune-${id}`);
+  if (select) {
+    doEdit({ action: 'car_level', car: id, level: Number(select.value) });
+  }
+}
+
+function quickMaxCar(id) {
+  doEdit({ action: 'car_level', car: id, level: 5 });
+}
+
+function unlockTypedVehicle() {
+  const input = $('vehicle-search');
+  const val = (input?.value || '').trim();
+  if (!val) {
+    showNotice('Type a car name (e.g. slow mobile, pickup truck, forklift) first.', 'warning');
+    return;
+  }
+  const v = findMatchingVehicle(val);
+  if (v && v.owned) {
+    showNotice(`You already own the ${v.name} in Slot ${currentSlot}! You cannot unlock it again.`, 'warning');
+    return;
+  }
+  doEdit({ action: 'own', car: v ? v.id : val });
+}
+
+function setHalloweenCandy() {
+  const val = $('hwn-candy-input')?.value;
+  if (val !== undefined && val !== '') {
+    doEdit({ action: 'halloween_candy', value: val });
+  }
+}
+
+function setChristmasCandyCanes() {
+  const val = $('xmas-canes-input')?.value;
+  if (val !== undefined && val !== '') {
+    doEdit({ action: 'christmas_candy_canes', value: val });
+  }
+}
+
+function setRaccoonBadges() {
+  const val = $('rc-badges-input')?.value;
+  if (val !== undefined && val !== '') {
+    doEdit({ action: 'raccoon_badges', value: val });
+  }
+}
+
+function fillVar(key, val) {
+  $('custom-var-key').value = key;
+  $('custom-var-val').value = val;
+}
+
+function setCustomVar() {
+  const key = $('custom-var-key').value.trim();
+  const value = $('custom-var-val').value.trim();
+  if (!key) {
+    showNotice('Enter a variable key to set.', 'error');
+    return;
+  }
+  doEdit({ action: 'custom_var', key, value });
+}
+
+// Bird Sanctuary Handlers
+function setBirdFunding() {
+  const val = $('bird-funding-input')?.value;
+  if (val !== undefined && val !== '') {
+    doEdit({ action: 'bird_funding', value: val });
+  }
+}
+
+function addBirdFunding(delta) {
+  const current = (currentState && currentState.birdSanctuary && currentState.birdSanctuary.funding) || 0;
+  const target = Math.min(2000000000, current + delta);
+  $('bird-funding-input').value = target;
+  doEdit({ action: 'bird_funding', value: target });
+}
+
+function setBirdLevel() {
+  const lvl = Number($('bird-level-select')?.value || 1);
+  doEdit({ action: 'bird_level', level: lvl });
+}
+
+// Photo Canvas Studio
+let canvasCtx = null;
+let isDrawing = false;
+let currentTool = 'pen'; // 'pen', 'brush', 'eraser', 'fill'
+let currentBrushColor = '#000000';
+let currentBrushSize = 6;
+let lastX = 0;
+let lastY = 0;
+
+function initPhotoCanvas() {
+  const canvas = $('photo-canvas');
+  if (!canvas) return;
+  canvasCtx = canvas.getContext('2d', { willReadFrequently: true });
+  canvasCtx.fillStyle = '#ffffff';
+  canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
+
+  function getPos(e) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    if (e.touches && e.touches.length > 0) {
+      return {
+        x: (e.touches[0].clientX - rect.left) * scaleX,
+        y: (e.touches[0].clientY - rect.top) * scaleY
+      };
+    }
+    return {
+      x: (e.clientX - rect.left) * scaleX,
+      y: (e.clientY - rect.top) * scaleY
+    };
+  }
+
+  function startDraw(e) {
+    if (currentTool === 'fill') {
+      const pos = getPos(e);
+      floodFill(Math.round(pos.x), Math.round(pos.y), currentBrushColor);
+      return;
+    }
+    isDrawing = true;
+    const pos = getPos(e);
+    lastX = pos.x;
+    lastY = pos.y;
+    drawDot(pos.x, pos.y);
+  }
+
+  function drawMove(e) {
+    if (!isDrawing) return;
+    const pos = getPos(e);
+    canvasCtx.beginPath();
+    canvasCtx.moveTo(lastX, lastY);
+    canvasCtx.lineTo(pos.x, pos.y);
+    canvasCtx.strokeStyle = currentTool === 'eraser' ? '#ffffff' : currentBrushColor;
+    canvasCtx.lineWidth = currentTool === 'brush' ? currentBrushSize * 2 : currentBrushSize;
+    canvasCtx.lineCap = 'round';
+    canvasCtx.lineJoin = 'round';
+    canvasCtx.stroke();
+    lastX = pos.x;
+    lastY = pos.y;
+  }
+
+  function stopDraw() {
+    isDrawing = false;
+  }
+
+  function drawDot(x, y) {
+    canvasCtx.beginPath();
+    canvasCtx.arc(x, y, (currentTool === 'brush' ? currentBrushSize * 2 : currentBrushSize) / 2, 0, Math.PI * 2);
+    canvasCtx.fillStyle = currentTool === 'eraser' ? '#ffffff' : currentBrushColor;
+    canvasCtx.fill();
+  }
+
+  canvas.addEventListener('mousedown', startDraw);
+  canvas.addEventListener('mousemove', drawMove);
+  canvas.addEventListener('mouseleave', stopDraw);
+  window.addEventListener('mouseup', stopDraw);
+
+  canvas.addEventListener('touchstart', e => { e.preventDefault(); startDraw(e); }, { passive: false });
+  canvas.addEventListener('touchmove', e => { e.preventDefault(); drawMove(e); }, { passive: false });
+  window.addEventListener('touchend', stopDraw);
+}
+
+function setCanvasTool(tool) {
+  currentTool = tool;
+  document.querySelectorAll('.tool-btn').forEach(b => {
+    b.classList.toggle('active', b.id === `tool-${tool}`);
+  });
+}
+
+function updateBrushSize(val) {
+  currentBrushSize = Number(val);
+  const v = $('brush-size-val');
+  if (v) v.textContent = `${val}px`;
+}
+
+function setColor(hex, el) {
+  currentBrushColor = hex;
+  const picker = $('native-color-picker');
+  if (picker) picker.value = hex;
+  document.querySelectorAll('.palette-swatch').forEach(s => s.classList.remove('active'));
+  if (el) el.classList.add('active');
+  if (currentTool === 'eraser') setCanvasTool('pen');
+}
+
+function clearCanvas() {
+  if (!canvasCtx) return;
+  const canvas = $('photo-canvas');
+  canvasCtx.fillStyle = '#ffffff';
+  canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
+}
+
+function applyCanvasTemplate(type) {
+  if (!canvasCtx) return;
+  const canvas = $('photo-canvas');
+  const w = canvas.width;
+  const h = canvas.height;
+  if (type === 'nature') {
+    const skyGrad = canvasCtx.createLinearGradient(0, 0, 0, h * 0.7);
+    skyGrad.addColorStop(0, '#7dd3fc');
+    skyGrad.addColorStop(1, '#bae6fd');
+    canvasCtx.fillStyle = skyGrad;
+    canvasCtx.fillRect(0, 0, w, h);
+
+    canvasCtx.fillStyle = '#fde047';
+    canvasCtx.beginPath();
+    canvasCtx.arc(w - 70, 70, 40, 0, Math.PI * 2);
+    canvasCtx.fill();
+
+    canvasCtx.fillStyle = '#94a3b8';
+    canvasCtx.beginPath();
+    canvasCtx.moveTo(w * 0.2, h * 0.65);
+    canvasCtx.lineTo(w * 0.45, h * 0.25);
+    canvasCtx.lineTo(w * 0.7, h * 0.65);
+    canvasCtx.fill();
+
+    canvasCtx.fillStyle = '#22c55e';
+    canvasCtx.beginPath();
+    canvasCtx.arc(w * 0.25, h * 1.05, w * 0.45, 0, Math.PI * 2);
+    canvasCtx.fill();
+
+    canvasCtx.fillStyle = '#16a34a';
+    canvasCtx.beginPath();
+    canvasCtx.arc(w * 0.75, h * 1.15, w * 0.5, 0, Math.PI * 2);
+    canvasCtx.fill();
+
+    canvasCtx.fillStyle = '#78350f';
+    canvasCtx.fillRect(70, h * 0.5, 20, 120);
+    canvasCtx.fillStyle = '#15803d';
+    canvasCtx.beginPath();
+    canvasCtx.arc(80, h * 0.45, 50, 0, Math.PI * 2);
+    canvasCtx.arc(60, h * 0.4, 40, 0, Math.PI * 2);
+    canvasCtx.arc(100, h * 0.4, 40, 0, Math.PI * 2);
+    canvasCtx.fill();
+  } else if (type === 'bird_stamp') {
+    const cx = w / 2;
+    const cy = h / 2;
+    canvasCtx.fillStyle = '#0f172a';
+    canvasCtx.beginPath();
+    canvasCtx.ellipse(cx, cy, 60, 45, 0.2, 0, Math.PI * 2);
+    canvasCtx.fill();
+
+    canvasCtx.beginPath();
+    canvasCtx.arc(cx + 50, cy - 35, 28, 0, Math.PI * 2);
+    canvasCtx.fill();
+
+    canvasCtx.fillStyle = '#f59e0b';
+    canvasCtx.beginPath();
+    canvasCtx.moveTo(cx + 75, cy - 40);
+    canvasCtx.lineTo(cx + 105, cy - 30);
+    canvasCtx.lineTo(cx + 75, cy - 22);
+    canvasCtx.closePath();
+    canvasCtx.fill();
+
+    canvasCtx.fillStyle = '#ffffff';
+    canvasCtx.beginPath();
+    canvasCtx.arc(cx + 62, cy - 38, 6, 0, Math.PI * 2);
+    canvasCtx.fill();
+    canvasCtx.fillStyle = '#000000';
+    canvasCtx.beginPath();
+    canvasCtx.arc(cx + 64, cy - 38, 3, 0, Math.PI * 2);
+    canvasCtx.fill();
+
+    canvasCtx.fillStyle = '#1e293b';
+    canvasCtx.beginPath();
+    canvasCtx.ellipse(cx - 10, cy, 38, 22, -0.3, 0, Math.PI * 2);
+    canvasCtx.fill();
+
+    canvasCtx.fillStyle = '#0f172a';
+    canvasCtx.beginPath();
+    canvasCtx.moveTo(cx - 50, cy - 5);
+    canvasCtx.lineTo(cx - 110, cy + 15);
+    canvasCtx.lineTo(cx - 60, cy + 25);
+    canvasCtx.closePath();
+    canvasCtx.fill();
+  }
+}
+
+function handleImageUpload(e) {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = $('photo-canvas');
+      canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
+      canvasCtx.fillStyle = '#ffffff';
+      canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
+
+      const hRatio = canvas.width / img.width;
+      const vRatio = canvas.height / img.height;
+      const ratio = Math.min(hRatio, vRatio);
+      const centerShiftX = (canvas.width - img.width * ratio) / 2;
+      const centerShiftY = (canvas.height - img.height * ratio) / 2;
+      canvasCtx.drawImage(img, 0, 0, img.width, img.height,
+                          centerShiftX, centerShiftY, img.width * ratio, img.height * ratio);
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function floodFill(startX, startY, fillHex) {
+  const canvas = $('photo-canvas');
+  const imgData = canvasCtx.getImageData(0, 0, canvas.width, canvas.height);
+  const data = imgData.data;
+  const width = canvas.width;
+  const height = canvas.height;
+
+  const r = parseInt(fillHex.slice(1, 3), 16);
+  const g = parseInt(fillHex.slice(3, 5), 16);
+  const b = parseInt(fillHex.slice(5, 7), 16);
+
+  const startIndex = (startY * width + startX) * 4;
+  const startR = data[startIndex];
+  const startG = data[startIndex + 1];
+  const startB = data[startIndex + 2];
+  const startA = data[startIndex + 3];
+
+  if (startR === r && startG === g && startB === b && startA === 255) return;
+
+  function match(idx) {
+    return Math.abs(data[idx] - startR) < 30 &&
+           Math.abs(data[idx + 1] - startG) < 30 &&
+           Math.abs(data[idx + 2] - startB) < 30 &&
+           Math.abs(data[idx + 3] - startA) < 30;
+  }
+
+  const stack = [[startX, startY]];
+  const seen = new Uint8Array(width * height);
+
+  while (stack.length > 0) {
+    const [cx, cy] = stack.pop();
+    if (cx < 0 || cx >= width || cy < 0 || cy >= height) continue;
+    const pos = cy * width + cx;
+    if (seen[pos]) continue;
+    seen[pos] = 1;
+
+    const idx = pos * 4;
+    if (!match(idx)) continue;
+
+    data[idx] = r;
+    data[idx + 1] = g;
+    data[idx + 2] = b;
+    data[idx + 3] = 255;
+
+    stack.push([cx + 1, cy], [cx - 1, cy], [cx, cy + 1], [cx, cy - 1]);
+  }
+
+  canvasCtx.putImageData(imgData, 0, 0);
+}
+
+function onPhotoCategoryChange() {
+  const cat = $('photo-category').value;
+  const birdSettings = $('photo-bird-settings');
+  if (birdSettings) {
+    birdSettings.style.display = cat === 'bird' ? 'block' : 'none';
+  }
+}
+
+function savePhotoToGame() {
+  const canvas = $('photo-canvas');
+  if (!canvas) return;
+
+  if (isBlocked) {
+    showNotice('⚠️ Sneaky Sasquatch is currently open! Please quit the game (⌘Q) first, then click Save Photo again.', 'warning');
+    alert('⚠️ Sneaky Sasquatch is currently open!\n\nPlease quit the game (Command+Q) first, then click "Save Photo To Game Album" again so the game can write your new photo safely.');
+    return;
+  }
+
+  // Create high-res 1200x800 export canvas to match the game's native photo format
+  const exportCanvas = document.createElement('canvas');
+  exportCanvas.width = 1200;
+  exportCanvas.height = 800;
+  const expCtx = exportCanvas.getContext('2d');
+  expCtx.imageSmoothingEnabled = true;
+  expCtx.imageSmoothingQuality = 'high';
+  expCtx.drawImage(canvas, 0, 0, 1200, 800);
+
+  const dataUrl = exportCanvas.toDataURL('image/png');
+  const cat = $('photo-category')?.value || 'bird';
+  const birdId = $('photo-bird-species') ? $('photo-bird-species').value : null;
+  const quality = $('photo-bird-quality') ? Number($('photo-bird-quality').value) : 3;
+
+  doEdit({
+    action: 'create_photo',
+    image_data: dataUrl,
+    category: cat,
+    bird_id: birdId,
+    quality: quality
+  });
+}
+
+function loadPhotoToCanvas(photoId) {
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  img.onload = () => {
+    const canvas = $('photo-canvas');
+    if (!canvasCtx || !canvas) return;
+    canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
+    canvasCtx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    canvas.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    showNotice(`Loaded photo ${photoId} into Painter canvas!`, 'normal');
+  };
+  img.src = `/api/photo_image/${photoId}?slot=${currentSlot}`;
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  initPhotoCanvas();
+});
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+  initPhotoCanvas();
+}
+
+// Initial load
+loadState();
+</script>
+<script src="/save-fields.js"></script>
+</body>
+</html>

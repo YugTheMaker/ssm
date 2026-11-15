@@ -1,0 +1,15 @@
+#!/bin/zsh
+project="${0:A:h}"
+if [[ "${1:l}" == "web" ]]; then
+  shift
+  exec python3 "$project/tools/ss_web.py" "$@"
+fi
+if [[ "${1:l}" == "terminal" ]]; then
+  shift
+  if [[ ! -f "$project/tools/ipad_terminal.py" ]]; then
+    printf 'The iPad terminal is unavailable in this checkout.\n' >&2
+    exit 1
+  fi
+  exec python3 "$project/tools/ipad_terminal.py" "$@"
+fi
+exec python3 "$project/tools/ss_console.py" "$@"
