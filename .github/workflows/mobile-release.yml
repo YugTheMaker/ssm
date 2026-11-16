@@ -39,7 +39,7 @@ jobs:
           ditto -c -k --keepParent build/simulator/Build/Products/Release-iphonesimulator/SasquatchSaveStudio.app release/SasquatchSaveStudio-iOS-iPadOS-Simulator.app.zip
           cp -R build/device/Build/Products/Release-iphoneos/SasquatchSaveStudio.app Payload/
           zip -qr release/SasquatchSaveStudio-iOS-iPadOS-Device-Unsigned.ipa Payload
-          ditto -c -k --keepParent ipad release/SasquatchSaveStudio-iOS-iPadOS-Xcode.zip
+          shasum -a 256 release/*.zip release/*.ipa > release/MOBILE-SHA256SUMS.txt
       - name: Upload to draft release
         env:
           GH_TOKEN: ${{ github.token }}
