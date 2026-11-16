@@ -12,7 +12,7 @@ Open [SasquatchSaveStudio.xcodeproj](ipad/SasquatchSaveStudio.xcodeproj) in Xcod
 
 ## Get started on Mac
 
-Open the disk image from GitHub Releases, then copy **Sasquatch Save Studio.app** into Applications. The bundle supports Apple silicon and Intel Macs running macOS 13 or later. In the app, select **Launch Sneaky Sasquatch** to open the installed game, **Edit Real Game Saves** to edit local saves, or **Try Demo Editor** for sample saves. In a real editing session, **Done & Launch Sneaky Sasquatch** closes the editor before opening the game. App backups are stored in `~/Library/Application Support/Sasquatch Save Studio/console-backups/`. GitHub builds are locally signed and lack Apple notarization.
+Open the disk image from GitHub Releases, then copy **Sasquatch Save Studio.app** into Applications. Choose the **Intel** DMG for an Intel Mac or the **AppleSilicon** DMG for an M-series Mac. Both target **macOS 12 Monterey or later**, including 12.7.6. Each disk image includes an **Applications** shortcut: drag the app onto it. In the app, select **Launch Sneaky Sasquatch** to open the installed game, **Edit Real Game Saves** to edit local saves, or **Try Demo Editor** for sample saves. In a real editing session, **Done & Launch Sneaky Sasquatch** closes the editor before opening the game. App backups are stored in `~/Library/Application Support/Sasquatch Save Studio/console-backups/`. GitHub builds are locally signed and lack Apple notarization.
 
 ### Run from source
 
@@ -72,10 +72,19 @@ python3 -m unittest discover -s tests -v
 
 This is an unofficial community project. The editor source is available under the MIT License.
 
-## Version 0.3.0 platform support
+## Platform support
 
-- **macOS 13+, Intel and Apple Silicon:** one universal app with a bundled universal Python runtime. The launcher opens the original installed game using macOS Launch Services. It does not bundle or re-sign the game.
+- **macOS 12+, Intel and Apple Silicon:** separate architecture-specific downloads, each with its own Python runtime. The launcher opens the original installed game using macOS Launch Services. It does not bundle or re-sign the game.
 - **iOS/iPadOS 17+:** the Xcode target now supports both iPhone and iPad. It edits imported copies and exports them through Files; it cannot access the installed game's private save container. Physical-device installation requires your own Apple signing.
 - **Separate playable accounts:** not implemented. The original game still uses its existing saves and iCloud configuration. Demo data is not playable game data. The home-screen information button explains this limitation; no automatic slot swapping or cloud redirection occurs.
 
-The macOS disk image is labeled Intel + Apple Silicon. Simulator and unsigned device downloads are development artifacts, not App Store installations. No native iPhone/iPad gameplay or mod injection is included.
+The macOS disk images are labeled Intel and AppleSilicon. macOS 11 and earlier are not supported by this release. Simulator and unsigned device downloads are development artifacts, not App Store installations. No native iPhone/iPad gameplay or mod injection is included.
+
+### Build the two Mac installers
+
+```sh
+python3 macos/build.py --python /usr/local/bin/python3 --output /tmp/ssm-build
+python3 macos/package.py --app "/tmp/ssm-build/Sasquatch Save Studio.app" --output /tmp/ssm-dmgs
+```
+
+The packager extracts the selected architecture from every native binary, checks minimum macOS deployment versions (including Python extension modules), re-signs the app, and adds an Applications shortcut and installation instructions. macOS 12 compatibility is checked at compile/deployment-target level; a physical Monterey machine has not been tested here. This requirement applies to Save Studio; the installed game has its own requirements.

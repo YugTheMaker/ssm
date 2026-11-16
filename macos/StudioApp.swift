@@ -11,7 +11,6 @@ struct StudioApp: App {
         WindowGroup("Sasquatch Save Studio") {
             StudioWindow(server: delegate.server)
         }
-        .defaultSize(width: 1100, height: 800)
         .commands {
             CommandGroup(replacing: .newItem) {
                 Button("Close Editor Session") { delegate.server.stop() }
@@ -94,7 +93,7 @@ private struct StudioWindow: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
-        .frame(minWidth: 650, minHeight: 420)
+        .frame(minWidth: 650, idealWidth: 1100, minHeight: 420, idealHeight: 800)
         .alert("Separate game saves", isPresented: $showIsolationInfo) {
             Button("OK", role: .cancel) {}
         } message: {

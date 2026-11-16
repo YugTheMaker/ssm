@@ -111,7 +111,7 @@ def main():
             executable = temporary / arch
             run('xcrun', '--sdk', 'macosx', 'swiftc', '-O', '-parse-as-library', '-sdk', sdk,
                 '-module-cache-path', temporary / 'ModuleCache',
-                '-target', f'{arch}-apple-macos13.0', PROJECT / 'macos/StudioApp.swift', '-o', executable)
+                '-target', f'{arch}-apple-macos12.0', PROJECT / 'macos/StudioApp.swift', '-o', executable)
             products.append(executable)
         run('lipo', '-create', *products, '-output', contents / 'MacOS/SasquatchSaveStudio')
         python_runtime(args.python, contents)
