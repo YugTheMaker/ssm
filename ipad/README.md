@@ -1,12 +1,12 @@
-# Sasquatch Save Studio for iPad
+# Sasquatch Save Studio for iPhone and iPad
 
 ## Build and launch
 
 1. Download and unzip the named `.xcodeproj.zip` release asset, or clone the repository.
 2. Open `ipad/SasquatchSaveStudio.xcodeproj` in Xcode 16 or newer.
-3. Select the **SasquatchSaveStudio** scheme and an iPad simulator. Press **Run** (⌘R). The deployment target is iPadOS 17.
+3. Select the **SasquatchSaveStudio** scheme and an iPhone or iPad simulator. Press **Run** (⌘R). The deployment target is iOS/iPadOS 17.
 
-For a physical iPad, connect and select the device in Xcode. In the app target’s **Signing & Capabilities**, choose your development team. If Xcode reports that the bundle ID is already in use, set a unique bundle ID under your team. Follow Xcode’s device setup prompts if needed, then press **Run**. Installing on hardware requires a build signed by your team. The unsigned device IPA in Releases is a development artifact.
+For a physical iPhone or iPad, connect and select the device in Xcode. In the app target’s **Signing & Capabilities**, choose your development team. If Xcode reports that the bundle ID is already in use, set a unique bundle ID under your team. Follow Xcode’s device setup prompts if needed, then press **Run**. Installing on hardware requires a build signed by your team. The unsigned device IPA in Releases is a development artifact.
 
 To use the prebuilt simulator app, unzip the **iPadOS Simulator** download and drag `SasquatchSaveStudio.app` onto a booted iPad Simulator window in Xcode.
 

@@ -1,0 +1,52 @@
+name: Mobile release verification
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing draft release tag
+        required: true
+        default: v0.3.0
+permissions:
+  contents: write
+jobs:
+  mobile:
+    runs-on: macos-15
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
+      - name: Test iPhone and iPad
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcrun simctl list devices available -j > /tmp/devices.json
+          python3 - <<'PY' > /tmp/test-devices.txt
+          import json
+          devices=[d for ds in json.load(open('/tmp/devices.json'))['devices'].values() for d in ds if d.get('isAvailable')]
+          for family in ('iPhone','iPad'):
+              print(next(d['udid'] for d in devices if d['name'].startswith(family)))
+          PY
+          while read -r device; do
+            xcodebuild test -project ipad/SasquatchSaveStudio.xcodeproj -scheme SasquatchSaveStudio -destination "platform=iOS Simulator,id=$device" -derivedDataPath build/test CODE_SIGNING_ALLOWED=NO > "build-test-$device.log" 2>&1 || { tail -100 "build-test-$device.log"; exit 1; }
+          done < /tmp/test-devices.txt
+      - name: Build simulator and device app
+        run: |
+          set -euo pipefail
+          xcodebuild build -project ipad/SasquatchSaveStudio.xcodeproj -scheme SasquatchSaveStudio -configuration Release -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath build/simulator CODE_SIGNING_ALLOWED=NO ONLY_ACTIVE_ARCH=NO > simulator-build.log 2>&1 || { tail -100 simulator-build.log; exit 1; }
+          xcodebuild build -project ipad/SasquatchSaveStudio.xcodeproj -scheme SasquatchSaveStudio -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' -derivedDataPath build/device CODE_SIGNING_ALLOWED=NO > device-build.log 2>&1 || { tail -100 device-build.log; exit 1; }
+          mkdir -p release Payload
+          ditto -c -k --keepParent build/simulator/Build/Products/Release-iphonesimulator/SasquatchSaveStudio.app release/SasquatchSaveStudio-iOS-iPadOS-Simulator.app.zip
+          cp -R build/device/Build/Products/Release-iphoneos/SasquatchSaveStudio.app Payload/
+          zip -qr release/SasquatchSaveStudio-iOS-iPadOS-Device-Unsigned.ipa Payload
+          ditto -c -k --keepParent ipad release/SasquatchSaveStudio-iOS-iPadOS-Xcode.zip
+      - name: Upload to draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.tag }}
+        run: gh release upload "$RELEASE_TAG" release/* --clobber
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mobile-build-logs
+          path: '*.log'

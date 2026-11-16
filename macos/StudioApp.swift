@@ -1,6 +1,7 @@
 import AppKit
 import SwiftUI
 import WebKit
+import UniformTypeIdentifiers
 
 @main
 struct StudioApp: App {
@@ -33,12 +34,25 @@ final class StudioDelegate: NSObject, NSApplicationDelegate {
 private struct StudioWindow: View {
     @ObservedObject var server: StudioServer
     @State private var launched = false
+    @State private var showIsolationInfo = false
 
     var body: some View {
         Group {
             if let url = server.url {
-                EditorWebView(url: url)
-                    .id(url)
+                VStack(spacing: 0) {
+                    HStack {
+                        Text(server.isDemo ? "Demo · sample saves only" : "Editing real game saves")
+                        Spacer()
+                        Button("Back") { server.stop() }
+                        if !server.isDemo {
+                            Button("Done & Launch Sneaky Sasquatch") { server.launchGame() }
+                                .buttonStyle(.borderedProminent)
+                                .disabled(server.isLaunching)
+                        }
+                    }.padding(12)
+                    Divider()
+                    EditorWebView(url: url).id(url)
+                }
             } else {
                 VStack(alignment: .leading, spacing: 18) {
                     Image(systemName: "slider.horizontal.3")
@@ -57,10 +71,21 @@ private struct StudioWindow: View {
                         ProgressView("Starting the editor…")
                     } else {
                         HStack {
-                            Button("Open Save Editor") { server.start(demo: false) }
+                            Button("Launch Sneaky Sasquatch") { server.launchGame() }
                                 .buttonStyle(.borderedProminent)
-                            Button("Try Demo") { server.start(demo: true) }
+                            Button("Edit Real Game Saves") { server.start(demo: false) }
                                 .buttonStyle(.bordered)
+                        }
+                        HStack {
+                            Button("Try Demo Editor") { server.start(demo: true) }
+                            Button("Separate Game Saves…") { showIsolationInfo = true }
+                        }
+                        if server.isLaunching {
+                            ProgressView("Opening Sneaky Sasquatch…")
+                        }
+                        HStack {
+                            Text("Launch uses the installed game and its existing saves. No game is included.")
+                                .font(.caption).foregroundStyle(.secondary)
                         }
                     }
                 }
@@ -69,7 +94,12 @@ private struct StudioWindow: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
-        .frame(minWidth: 590, minHeight: 420)
+        .frame(minWidth: 650, minHeight: 420)
+        .alert("Separate game saves", isPresented: $showIsolationInfo) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("A second playable save account is not available in this release. The installed game uses its own save container and iCloud settings. Demo mode is an editor preview, not a second game. The previous re-signed game copy failed Apple Arcade validation.")
+        }
         .task {
             if !launched && ProcessInfo.processInfo.arguments.contains("--demo") {
                 launched = true
@@ -97,12 +127,58 @@ final class StudioServer: ObservableObject {
     @Published private(set) var error: String?
     @Published private(set) var isRunning = false
 
+    @Published private(set) var isDemo = false
+    @Published private(set) var isLaunching = false
+
+    func launchGame() {
+        guard !isLaunching else { return }
+        let identifier = "com.rac7.SneakySasquatchMac"
+        var gameURL = NSWorkspace.shared.urlForApplication(withBundleIdentifier: identifier)
+        if gameURL == nil {
+            let picker = NSOpenPanel()
+            picker.title = "Choose your installed Sneaky Sasquatch app"
+            picker.canChooseDirectories = false
+            picker.canChooseFiles = true
+            picker.allowedContentTypes = [.applicationBundle]
+            picker.directoryURL = URL(fileURLWithPath: "/Applications")
+            guard picker.runModal() == .OK else { return }
+            gameURL = picker.url
+        }
+        guard let gameURL, Bundle(url: gameURL)?.bundleIdentifier == identifier else {
+            error = "Choose the original installed Sneaky Sasquatch app. A test copy cannot be launched here."
+            return
+        }
+        let editor = process
+        isLaunching = true
+        stop()
+        Task { @MainActor in
+            // Let the server finish shutdown before allowing the game to load saves.
+            for _ in 0..<100 {
+                if editor?.isRunning != true { break }
+                try? await Task.sleep(nanoseconds: 100_000_000)
+            }
+            guard editor?.isRunning != true else {
+                error = "The editor has not finished closing. Wait and try again."
+                isLaunching = false
+                return
+            }
+            let configuration = NSWorkspace.OpenConfiguration()
+            configuration.activates = true
+            NSWorkspace.shared.openApplication(at: gameURL, configuration: configuration) { _, failure in
+                Task { @MainActor in
+                    self.isLaunching = false
+                    self.error = failure.map { "Could not launch Sneaky Sasquatch: " + $0.localizedDescription }
+                }
+            }
+        }
+    }
+
     private var process: Process?
     private var output: Pipe?
     private var pendingOutput = Data()
 
     func start(demo: Bool) {
-        guard !isRunning, let resources = Bundle.main.resourceURL,
+        guard !isRunning, !isLaunching, let resources = Bundle.main.resourceURL,
               let executables = Bundle.main.executableURL?.deletingLastPathComponent() else { return }
 
         let child = Process()
@@ -130,6 +206,7 @@ final class StudioServer: ObservableObject {
         pendingOutput.removeAll()
         error = nil
         isRunning = true
+        isDemo = demo
         pipe.fileHandleForReading.readabilityHandler = { [weak self] handle in
             let data = handle.availableData
             if data.isEmpty {
